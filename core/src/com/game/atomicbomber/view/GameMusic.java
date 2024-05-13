@@ -5,7 +5,7 @@ import com.badlogic.gdx.audio.Music;
 
 public enum GameMusic {
     BABY_SHARK("music/babyshark.mp3"),
-    BABEI("music/babei.mp3"),
+    BABEI("music/babaei.mp3"),
     KHOROOS("music/khoroos.mp3"),
     ;
     private final String path;

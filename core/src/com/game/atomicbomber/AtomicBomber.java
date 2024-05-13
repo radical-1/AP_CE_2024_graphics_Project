@@ -5,11 +5,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.game.atomicbomber.controller.ScreenManager;
-import com.game.atomicbomber.view.screen.RegisterScreen;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration;
 
 public class AtomicBomber extends Game {
+	public static AtomicBomber singleton;
 	public static NativeFileChooser fileChooser;
 	public static NativeFileChooserConfiguration fileChooserConfiguration;
 	public Skin skin;
@@ -24,6 +24,7 @@ public class AtomicBomber extends Game {
 		ScreenManager.getInstance().initialize(this);
 		ScreenManager.getInstance().setScreen("RegisterScreen");
 		skin = new Skin(Gdx.files.internal("skin/pixthulhu-ui.json"));
+		singleton = this;
 	}
 
 	@Override
@@ -38,4 +39,5 @@ public class AtomicBomber extends Game {
 	public SpriteBatch getBatch() {
 		return this.batch;
 	}
+
 }

@@ -28,6 +28,7 @@ public class TankRocket {
         this.x = x;
         this.y = y;
         rocketSprite = new Sprite(ROCKET_TEXTURE);
+        rocketSprite.setSize(WIDTH, HEIGHT);
         this.tank = tank;
     }
 

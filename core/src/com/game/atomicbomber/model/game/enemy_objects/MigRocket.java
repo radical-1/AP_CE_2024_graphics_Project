@@ -7,8 +7,8 @@ import com.game.atomicbomber.AtomicBomber;
 import java.util.ArrayList;
 
 public class MigRocket {
-    public static final float WIDTH = 25;
-    public static final float HEIGHT = 10;
+    public static final float MIG_ROCKET_WIDTH = 25;
+    public static final float MIG_ROCKET_HEIGHT = 10;
     public static final float SPEED = 300;
     private static final Texture ROCKET_TEXTURE = new Texture("rocket.png");
     private static ArrayList<Texture> airblast = new ArrayList<>();
@@ -28,6 +28,7 @@ public class MigRocket {
         this.x = x;
         this.y = y;
         rocketSprite = new Sprite(ROCKET_TEXTURE);
+        rocketSprite.setSize(MIG_ROCKET_WIDTH, MIG_ROCKET_HEIGHT);
         this.mig = mig;
     }
 
@@ -63,7 +64,7 @@ public class MigRocket {
         mig.removeRocket(this);
     }
     public boolean isHit(float shipX, float shipY) {
-        return shipX < x + WIDTH && shipX + WIDTH > x && shipY < y + HEIGHT && shipY + HEIGHT > y;
+        return shipX < x + MIG_ROCKET_WIDTH && shipX + MIG_ROCKET_WIDTH > x && shipY < y + MIG_ROCKET_HEIGHT && shipY + MIG_ROCKET_HEIGHT > y;
     }
     public void handleHit() {
         //TODO : handle game over

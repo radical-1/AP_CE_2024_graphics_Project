@@ -3,7 +3,6 @@ package com.game.atomicbomber.view.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -18,11 +17,6 @@ import com.game.atomicbomber.model.User;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import games.spooky.gdx.nativefilechooser.NativeFileChooser;
-import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration;
-
-import java.io.File;
-import java.io.FileFilter;
 
 public class AvatarMenuScreen implements Screen {
     private TextButton[] avatarButtons = new TextButton[5];

@@ -1,13 +1,15 @@
 package com.game.atomicbomber.model.game.enemy_objects;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.game.atomicbomber.AtomicBomber;
 
-public class Enemy {
+public abstract class Enemy {
     protected float Width, Height;
     protected int hitPoint;
     protected float x, y;
     protected boolean isDestroyed;
     protected float speed;
+    protected Sprite sprite;
 
     public Enemy(float x, float y, float speed, float Width, float Height, int hitPoint) {
         this.x = x;
@@ -17,7 +19,10 @@ public class Enemy {
         this.Height = Height;
         this.hitPoint = hitPoint;
         this.isDestroyed = false;
+
     }
+    public abstract void update(float delta);
+    public abstract void render();
 
     public float getWidth() {
         return Width;
@@ -67,12 +72,5 @@ public class Enemy {
     public float getSpeed() {
         return speed;
     }
-    public void update(float delta) {
-        if(isDestroyed) {
-            //TODO : destroy
-        }
 
-        x += speed;
-
-    }
 }

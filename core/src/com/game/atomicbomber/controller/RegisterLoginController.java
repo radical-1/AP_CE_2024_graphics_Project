@@ -4,9 +4,6 @@ package com.game.atomicbomber.controller;
 import com.game.atomicbomber.model.User;
 import com.game.atomicbomber.view.ValidInputs;
 
-import java.io.IOException;
-import java.util.List;
-
 public class RegisterLoginController {
     public static void register(String username, String password) {
         User user = new User(username, password);

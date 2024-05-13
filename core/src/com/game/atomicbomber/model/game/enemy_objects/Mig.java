@@ -2,39 +2,41 @@ package com.game.atomicbomber.model.game.enemy_objects;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.game.atomicbomber.AtomicBomber;
+import com.game.atomicbomber.model.game.Game;
 
 import java.util.ArrayList;
 
-public class Mig {
-    private static final float MIG_SPEED = 100;
-    private static final float MIG_WIDTH = 120;
-    private static final float MIG_HEIGHT = 40;
+public class Mig extends Enemy {
+    public static final float MIG_WIDTH = 90;
+    public static final float MIG_HEIGHT = 40;
+    public static final int MIG_HITPOINT = 10;
+    public static final float MIG_SPEED = 100;
     private static final Texture MIG_TEXTURE = new Texture("mig.png");
-    private static final Texture MIG_WARNING_TEXTURE = new Texture("mig_warning.png");
+    private static final Texture MIG_WARNING_TEXTURE = new Texture("migwarning.png");
+
+    private boolean warningShown;
+    private float warningTime;
 
     private float attackRangeRadius;
-    private float x, y;
-    private Sprite migSprite;
+
     private ArrayList<MigRocket> rockets;
 
-    public Mig(float x, float y, float attackRange) {
-        this.x = x;
-        this.y = y;
+    public Mig(float x, float y, float speed,float attackRange) {
+        super(x, y, speed, MIG_WIDTH, MIG_HEIGHT, MIG_HITPOINT);
         this.attackRangeRadius = attackRange;
-        migSprite = new Sprite(MIG_TEXTURE);
+        sprite = new Sprite(MIG_TEXTURE);
+        sprite.setSize(getWidth(), getHeight());
         rockets = new ArrayList<>();
+        warningShown = false;
+        warningTime = 0;
     }
-    public float getX() {
-        return x;
-    }
-    public void setX(float x) {
-        this.x = x;
-    }
-    public float getY() {
-        return y;
-    }
+
     public boolean isOutOfScreen() {
-        return x < -MIG_WIDTH;
+        if(warningShown)
+            return false;
+
+        return x < - 3 * getWidth() || x > AtomicBomber.WIDTH + 3 * getWidth() || y < - 3 * getHeight() || y > AtomicBomber.HEIGHT + 3 * getHeight();
     }
     public void shootRocket() {
         //TODO : shoot rocket
@@ -46,17 +48,36 @@ public class Mig {
         return distance <= attackRangeRadius;
     }
 
-    public void update(float shipX, float shipY, float delta) {
-        x -= MIG_SPEED;
-        if (isShipInRangeForAttack(shipX, shipY)) {
-            shootRocket();
-        }
-        for (MigRocket rocket : rockets) {
-            rocket.update(shipX, shipY, delta);
-        }
-    }
     public void removeRocket(MigRocket rocket) {
         rockets.remove(rocket);
     }
 
+    @Override
+    public void update(float delta) {
+        if(warningShown && warningTime < 5){
+            warningTime += delta;
+            return;
+        }
+        if(warningShown && warningTime >= 5) {
+            sprite.setTexture(MIG_TEXTURE);
+            warningShown = false;
+
+        }
+        x -= MIG_SPEED * delta;
+        if (isShipInRangeForAttack(Game.getPlayingGame().getShip().x, Game.getPlayingGame().getShip().y)) {
+            shootRocket();
+        }
+        for (MigRocket rocket : rockets) {
+            rocket.update(Game.getPlayingGame().getShip().x, Game.getPlayingGame().getShip().y, delta);
+        }
+        if(isOutOfScreen()){
+            isDestroyed = true;
+        }
+        render();
+    }
+    @Override
+    public void render() {
+        sprite.setPosition(x, y);
+        sprite.draw(AtomicBomber.singleton.getBatch());
+    }
 }

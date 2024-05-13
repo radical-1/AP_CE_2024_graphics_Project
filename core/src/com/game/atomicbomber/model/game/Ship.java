@@ -15,7 +15,7 @@ public class Ship {
 
     static {
         SHIP_TEXTURES.add(new Texture("dino_spaceship.png"));
-        SHIP_TEXTURES.add(new Texture("ship.png"));
+        SHIP_TEXTURES.add(new Texture("Spaceship.png"));
     }
 
     public static final int SHIP_WIDTH = 80;
@@ -42,7 +42,7 @@ public class Ship {
         Y_Speed = 0;
     }
 
-    public void render(float delta, AtomicBomber game) {
+    public void render(float delta) {
         // Update speed based on user input
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             if (X_Speed > -200)
@@ -127,11 +127,14 @@ public class Ship {
         // Update sprite
         spaceshipSprite.setPosition(x, y);
         spaceshipSprite.setRotation(direction);
-        spaceshipSprite.draw(game.getBatch());
+        spaceshipSprite.draw(AtomicBomber.singleton.getBatch());
 
     }
 
-    public float getDirection() {
-        return direction;
+    public float getX_Speed() {
+        return X_Speed;
+    }
+    public float getY_Speed() {
+        return Y_Speed;
     }
 }
