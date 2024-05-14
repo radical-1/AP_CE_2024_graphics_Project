@@ -112,13 +112,25 @@ public class LeaderBoardScreen implements Screen {
         for (int i = 0; i < allUsers.size(); i++) {
             User user = allUsers.get(i);
             if (i < 3) { // Rank 1 to 3 users are red
-                leaderboardTable.add(new Label(String.valueOf(i + 1), redStyle));
-                leaderboardTable.add(new Label(user.getUsername(), redStyle));
-                leaderboardTable.add(new Label(String.valueOf(user.getScore()), redStyle));
+                Label rankLabel = new Label(String.valueOf(i + 1), redStyle);
+                rankLabel.setFontScale(3);
+                Label usernameLabel = new Label(user.getUsername(), redStyle);
+                usernameLabel.setFontScale(3);
+                Label scoreLabel = new Label(String.valueOf(user.getScore()), redStyle);
+                scoreLabel.setFontScale(3);
+                leaderboardTable.add(rankLabel);
+                leaderboardTable.add(usernameLabel);
+                leaderboardTable.add(scoreLabel);
             } else { // Rank 4 and below users are green
-                leaderboardTable.add(new Label(String.valueOf(i + 1), greenStyle));
-                leaderboardTable.add(new Label(user.getUsername(), greenStyle));
-                leaderboardTable.add(new Label(String.valueOf(user.getScore()), greenStyle));
+                Label rankLabel = new Label(String.valueOf(i + 1), greenStyle);
+                rankLabel.setFontScale(3);
+                Label usernameLabel = new Label(user.getUsername(), greenStyle);
+                usernameLabel.setFontScale(3);
+                Label scoreLabel = new Label(String.valueOf(user.getScore()), greenStyle);
+                scoreLabel.setFontScale(3);
+                leaderboardTable.add(rankLabel);
+                leaderboardTable.add(usernameLabel);
+                leaderboardTable.add(scoreLabel);
             }
             leaderboardTable.row();
         }

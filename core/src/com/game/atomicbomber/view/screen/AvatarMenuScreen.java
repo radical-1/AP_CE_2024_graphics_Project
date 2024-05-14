@@ -48,7 +48,7 @@ public class AvatarMenuScreen implements Screen {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("skin/pixthulhu-ui.json"));
+        skin = AtomicBomber.singleton.skin;
 
         this.backButton = new TextButton("Back", skin);
 

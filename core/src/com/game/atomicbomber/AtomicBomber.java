@@ -13,18 +13,19 @@ public class AtomicBomber extends Game {
 	public static NativeFileChooser fileChooser;
 	public static NativeFileChooserConfiguration fileChooserConfiguration;
 	public Skin skin;
-	public static final int WIDTH = 1080;
-	public static final int HEIGHT = 720;
+	public static final int WIDTH = 1260;
+	public static final int HEIGHT = 800;
 
 	private SpriteBatch batch;
 	
 	@Override
 	public void create () {
+		singleton = this;
+		skin = new Skin(Gdx.files.internal("skin/quantum-horizon-ui.json"));
 		this.batch = new SpriteBatch();
 		ScreenManager.getInstance().initialize(this);
 		ScreenManager.getInstance().setScreen("RegisterScreen");
-		skin = new Skin(Gdx.files.internal("skin/pixthulhu-ui.json"));
-		singleton = this;
+
 	}
 
 	@Override

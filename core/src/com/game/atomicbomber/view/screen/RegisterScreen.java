@@ -28,7 +28,6 @@ public class RegisterScreen implements Screen {
     private Dialog errorDialog;
     private Label passwordStrengthLabel;// Label to display password strength
     private static final Table table = new Table();
-    AtomicBomber game;
 
     private TextButton loginButton;
     private TextButton registerButton;
@@ -41,11 +40,10 @@ public class RegisterScreen implements Screen {
         this.background = new Sprite(backgroundTexture);
         this.background.setSize(AtomicBomber.WIDTH, AtomicBomber.HEIGHT);
 
-        this.game = game;
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("skin/pixthulhu-ui.json"));
+        skin = AtomicBomber.singleton.skin;
         table.setFillParent(true);
 
 
@@ -174,9 +172,9 @@ public class RegisterScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.25f, 0.5f, 0.75f, 1);
         Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
-        game.getBatch().begin();
-        background.draw(game.getBatch());
-        game.getBatch().end();
+        AtomicBomber.singleton.getBatch().begin();
+        background.draw(AtomicBomber.singleton.getBatch());
+        AtomicBomber.singleton.getBatch().end();
         stage.act(delta);
         stage.draw();
     }

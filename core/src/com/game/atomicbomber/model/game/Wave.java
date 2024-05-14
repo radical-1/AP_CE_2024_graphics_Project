@@ -14,6 +14,7 @@ public class Wave {
     private int numTrees;
     private boolean spawnMig;
     private Difficulty difficulty;
+    private Random random;
 
     public Wave(int numTanks, int numTrucks, int numBuildings, int numRiflepits, int numTrees, boolean doesSpawnMig, Difficulty difficulty) {
         this.numTanks = numTanks;
@@ -23,16 +24,17 @@ public class Wave {
          this.numTrees = numTrees;
         this.spawnMig = doesSpawnMig;
         this.difficulty = difficulty;
+        this.random = new Random();
         spawnEnemies(Game.getPlayingGame());
     }
 
     public void spawnEnemies(Game game) {
-        Random random = new Random();
+
         // Spawn tanks
         for (int i = 0; i < numTanks; i++) {
             float x = random.nextFloat() * AtomicBomber.WIDTH;
 
-            game.addEnemy(new Tank(x, 50, difficulty.getTankSpeed(), difficulty.getTankAttackRange()));
+            game.addEnemy(new Tank(x, 60, difficulty.getTankSpeed(), difficulty.getTankAttackRange()));
 
         }
         // Spawn trucks, buildings, riflepits, and trees similarly...
@@ -42,28 +44,32 @@ public class Wave {
         }
         for (int i = 0; i < numBuildings; i++) {
             float x = random.nextFloat() * AtomicBomber.WIDTH;
-            game.addEnemy(new Building(x, 50));
-            System.out.println("Building spawned at :" + x);
+            game.addEnemy(new Building(x, 70));
         }
         for (int i = 0; i < numRiflepits; i++) {
             float x = random.nextFloat() * AtomicBomber.WIDTH;
-
-            game.addEnemy(new riflePit(x, 50));
+            game.addEnemy(new riflePit(x, 70));
         }
         for (int i = 0; i < numTrees; i++) {
             float x = random.nextFloat() * AtomicBomber.WIDTH;
 
-            game.addEnemy(new Tree(x, 50));
-        }
-
-        if(spawnMig) {
-            int rand = random.nextInt() * 2;
-            float y = (random.nextFloat() * AtomicBomber.HEIGHT - 400) + 200;
-            if(rand == 0)
-                game.addEnemy(new Mig(-160, y, Mig.MIG_SPEED, difficulty.getMigAttackRange()));
-            else
-                game.addEnemy(new Mig(AtomicBomber.WIDTH + 160, y, -Mig.MIG_SPEED, difficulty.getMigAttackRange()));
-
+            game.addEnemy(new Tree(x, 70));
         }
     }
+    public void spawnMig() {
+        int rand = random.nextInt() * 2;
+        float y = (random.nextFloat() * AtomicBomber.HEIGHT - 500) + 700;
+        if(rand == 0)
+            Game.getPlayingGame().addEnemy(new Mig(-160, y, Mig.MIG_SPEED, difficulty.getMigAttackRange()));
+        else {
+            Mig mig = new Mig(AtomicBomber.WIDTH + 160, y, -Mig.MIG_SPEED, difficulty.getMigAttackRange());
+            mig.getSprite().flip(true, false);
+            Game.getPlayingGame().addEnemy(mig);
+        }
+    }
+    public boolean getSpawnMig() {
+        return spawnMig;
+    }
+
+
 }

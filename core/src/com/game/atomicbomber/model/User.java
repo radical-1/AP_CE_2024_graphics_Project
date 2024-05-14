@@ -3,6 +3,7 @@ package com.game.atomicbomber.model;
 import com.badlogic.gdx.graphics.Texture;
 
 import com.game.atomicbomber.model.game.Game;
+import com.game.atomicbomber.view.GameMusic;
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -20,7 +21,7 @@ public class User {
     private int highscore;
     private Avatar avatar;
     private GameInformation gameInfo;
-    private ArrayList<Game> games;
+    private ArrayList<GameData> games;
 
     public User(String username, String password) {
         this.username = username;
@@ -150,14 +151,14 @@ public class User {
     public int getKills() {
 
         int kills = 0;
-        for(Game game : games) {
+        for(GameData game : games) {
             kills += game.getKills();
         }
         return kills;
     }
     public int getDifficulty() {
         int difficulty = 0;
-        for(Game game : games) {
+        for(GameData game : games) {
             switch (game.getDifficulty()) {
                 case EASY:
                     difficulty += game.getKills();
@@ -172,12 +173,15 @@ public class User {
         }
         return difficulty;
     }
-
+    public void removeGame(Game game) {
+        games.remove(game);
+    }
     public int getAccuracy() {
         float accuracy = 0;
-        for(Game game : games) {
+        for(GameData game : games) {
             accuracy += game.getAccuracy();
         }
         return (int)((accuracy / games.size()) * 100);
     }
+
 }

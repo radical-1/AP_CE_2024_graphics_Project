@@ -1,6 +1,7 @@
 package com.game.atomicbomber.model.game.enemy_objects;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Rectangle;
 import com.game.atomicbomber.AtomicBomber;
 
 public abstract class Enemy {
@@ -71,6 +72,15 @@ public abstract class Enemy {
 
     public float getSpeed() {
         return speed;
+    }
+    public Sprite getSprite() {
+        return sprite;
+    }
+    public Rectangle getBoundingRectangle() {
+        return new Rectangle(x, y, Width, Height);
+    }
+    public boolean isColliding(float x, float y, float width, float height) {
+        return getBoundingRectangle().overlaps(new Rectangle(x, y, width, height));
     }
 
 }

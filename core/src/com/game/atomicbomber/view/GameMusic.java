@@ -7,6 +7,7 @@ public enum GameMusic {
     BABY_SHARK("music/babyshark.mp3"),
     BABEI("music/babaei.mp3"),
     KHOROOS("music/khoroos.mp3"),
+    WHEELS_ON_THE_BUS("music/wheels_on_the_bus.mp3")
     ;
     private final String path;
     private Music music;

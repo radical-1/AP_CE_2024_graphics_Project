@@ -43,17 +43,17 @@ public class ProfileMenuScreen extends Menu implements Screen {
     private Skin skin;
     private Dialog errorDialog;
 
-    AtomicBomber game;
+
 
     public ProfileMenuScreen(AtomicBomber game) {
         background = new Texture("avatar_menu_background.jpg");
-        this.game = game;
+
         batch = game.getBatch();
         font = new BitmapFont();
         user = User.getLoggedInUser();
         currentAvatar = user.getAvatar();
 
-        skin = new Skin(Gdx.files.internal("skin/pixthulhu-ui.json"));
+        skin = AtomicBomber.singleton.skin;
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 

@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.game.atomicbomber.AtomicBomber;
 
 public class riflePit extends Enemy {
-    public static final float RIFLE_PIT_WIDTH = 60;
-    public static final float RIFLE_PIT_HEIGHT = 60;
+    public static final float RIFLE_PIT_WIDTH = 90;
+    public static final float RIFLE_PIT_HEIGHT = 90;
     public static final int RIFLE_PIT_HITPOINT = 10;
     private static final Texture RIFLE_PIT_TEXTURE = new Texture("rifle_pit.png");
 

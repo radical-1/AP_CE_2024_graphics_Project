@@ -1,13 +1,14 @@
 package com.game.atomicbomber.model.game;
 
-import com.game.atomicbomber.AtomicBomber;
+import com.game.atomicbomber.controller.GameController;
 import com.game.atomicbomber.model.Difficulty;
 import com.game.atomicbomber.model.User;
 import com.game.atomicbomber.model.game.bombs.Bomb;
+import com.game.atomicbomber.model.game.bombs.EnemyBullet;
+import com.game.atomicbomber.model.game.bombs.RadioActiveBomb;
 import com.game.atomicbomber.model.game.enemy_objects.*;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Game {
     private static Game playingGame;
@@ -18,12 +19,24 @@ public class Game {
     private int waveNumber;
     private int shootBullets;
     private int shootEnemies;
+    public float timeSinceLastBomb;
+    public float timeSinceLastCluster;
     private Difficulty difficulty;
+    private int numberOfCluster;
+    private int numberOfRadioActiveBomb;
+    private int numberOfBombs;
+    private boolean gameOver;
+    private float migSpawnerTimer;
     //enemy objects
     private ArrayList<Enemy> enemies;
     //ship
     private Ship ship;
+    //bombs
     private ArrayList<Bomb> bombs;
+    private ArrayList<RadioActiveBomb> radioActiveBombs;
+    private ArrayList<EnemyBullet> enemyBullets;
+    //Bonuses
+    private ArrayList<Bonus> bonuses;
 
     public Game(User player) {
         kills = 0;
@@ -31,27 +44,37 @@ public class Game {
         shootEnemies = 0;
         this.difficulty = player.getGameInfo().getDifficulty();
         accuracy = 0;
+        timeSinceLastBomb = 0;
+        timeSinceLastCluster = 0;
         this.player = player;
         setPlayingGame(this);
         waveNumber = 1;
         ship = new Ship();
         enemies = new ArrayList<>();
         bombs = new ArrayList<>();
+        radioActiveBombs = new ArrayList<>();
+        enemyBullets = new ArrayList<>();
+        bonuses = new ArrayList<>();
+        numberOfCluster = 1;
+        numberOfRadioActiveBomb = 0;
+        numberOfBombs = 10;
+        gameOver = false;
         startWave();
-
-
     }
 
     private void startWave() {
         switch (waveNumber) {
-            case 1 :
-                currentWave = new Wave(3, 2, 1, 1, 6,false, difficulty);
+            case 1:
+                currentWave = new Wave(3, 2, 1, 1, 6, false, difficulty);
                 break;
-            case 2 :
-                currentWave = new Wave(5, 3, 2, 2, 8,false, difficulty);
+            case 2:
+                currentWave = new Wave(5, 3, 2, 2, 8, false, difficulty);
                 break;
-            case 3 :
-                currentWave = new Wave(7, 4, 3, 3, 10,true, difficulty);
+            case 3:
+                currentWave = new Wave(7, 4, 3, 3, 10, true, difficulty);
+                break;
+            default:
+                //TODO : Exit game
                 break;
         }
 
@@ -77,10 +100,6 @@ public class Game {
         return difficulty;
     }
 
-    public void setDifficulty(Difficulty difficulty) {
-        this.difficulty = difficulty;
-    }
-
     public void increaseKills(int num) {
         kills += num;
     }
@@ -100,38 +119,130 @@ public class Game {
     public void addEnemy(Enemy enemy) {
         enemies.add(enemy);
     }
-    public void update(float delta) {
 
+    public void update(float delta) {
+        timeSinceLastBomb += delta;
+        timeSinceLastCluster += delta;
+        if (currentWave.getSpawnMig()) {
+            migSpawnerTimer += delta;
+            if (migSpawnerTimer >= difficulty.getTimeBetweenMigPassing()) {
+                currentWave.spawnMig();
+                migSpawnerTimer = 0;
+            }
+            if (migSpawnerTimer >= 2 * (difficulty.getTimeBetweenMigPassing() / 3)) {
+                //TODO : show mig warning
+            }
+        }
+        handleObjectsUpdate(delta);
+        if (isWaveDone()) {
+            waveNumber++;
+            startWave();
+            //TODO : show wave win message
+        }
+        if (gameOver) {
+            //TODO : show game over message
+
+        }
+    }
+
+    private void handleObjectsUpdate(float delta) {
         for (Enemy enemy : enemies) {
             enemy.update(delta);
         }
         for (Bomb bomb : new ArrayList<>(bombs)) {
             bomb.update(delta);
-            if(bomb.isOutOfScreen()) {
-                bombs.remove(bomb);
+            if (bomb.isOutOfScreen()) {
+                bomb.explode();
             }
-            if(bomb.isExploded()) {
+            if (bomb.isExploded()) {
                 bombs.remove(bomb);
             }
         }
-        if (isWaveDone()) {
-            waveNumber++;
-            // Wait 5 seconds before starting the next wave
-            new java.util.Timer().schedule(
-                    new java.util.TimerTask() {
-                        @Override
-                        public void run() {
-                            startWave();
-                        }
-                    },
-                    5000
-            );
-
+        for (RadioActiveBomb bomb : new ArrayList<>(radioActiveBombs)) {
+            bomb.update(delta);
+            if (bomb.isExploded()) {
+                handleRadioActiveCollision(bomb);
+                radioActiveBombs.remove(bomb);
+            }
+        }
+        for (Bonus bonus : new ArrayList<>(bonuses)) {
+            bonus.update(delta);
+            if (bonus.isCaptured()) {
+                bonus.handleCapture();
+                bonuses.remove(bonus);
+            } else if (bonus.isOutOfScreen()) {
+                bonuses.remove(bonus);
+            }
+        }
+        // Check for collisions
+        for (Enemy value : new ArrayList<>(enemies)) {
+            for (Bomb item : new ArrayList<>(bombs)) {
+                if (isCollision(value, item)) {
+                    handleCollision(value, item);
+                }
+            }
+        }
+        for (EnemyBullet bullet : new ArrayList<>(enemyBullets)) {
+            bullet.update(delta);
+        }
+        for (EnemyBullet bullet : new ArrayList<>(enemyBullets)) { // Replace with actual list of enemy bullets
+            if (bullet.isCollidingWithShip(ship)) { // Replace 'ship' with actual ship instance
+                // Handle collision
+                handleEnemyBulletCollision(bullet);
+            }
+            if (bullet.isExploded()) {
+                enemyBullets.remove(bullet);
+            }
         }
     }
 
+    private boolean isCollision(Enemy enemy, Bomb bomb) {
+        // Check if the bounding boxes of the enemy and the bomb overlap
+        return enemy.getBoundingRectangle().overlaps(bomb.getBoundingRectangle());
+    }
+
+    private void handleCollision(Enemy enemy, Bomb bomb) {
+        bomb.explode();
+        enemies.remove(enemy);
+        if (enemy instanceof Building) {
+            bonuses.add(new Bonus(enemy.getX(), enemy.getY(), 2));
+        } else if (enemy instanceof riflePit) {
+            bonuses.add(new Bonus(enemy.getX(), enemy.getY(), 1));
+        } else {
+            bonuses.add(new Bonus(enemy.getX(), enemy.getY(), 3));
+        }
+        GameController.increaseKills(enemy.getHitPoint());
+    }
+
+    private void handleRadioActiveCollision(RadioActiveBomb bomb) {
+        bomb.explode();
+        for (Enemy enemy : new ArrayList<>(enemies)) {
+            if (bomb.isEnemyInRange(enemy.getX(), enemy.getY())) {
+                enemies.remove(enemy);
+                if (enemy instanceof Building) {
+                    bonuses.add(new Bonus(enemy.getX(), enemy.getY(), 2));
+                } else if (enemy instanceof riflePit) {
+                    bonuses.add(new Bonus(enemy.getX(), enemy.getY(), 1));
+                } else {
+                    bonuses.add(new Bonus(enemy.getX(), enemy.getY(), 3));
+                }
+                GameController.increaseKills(enemy.getHitPoint());
+            }
+        }
+    }
+
+    private void handleEnemyBulletCollision(EnemyBullet bullet) {
+        bullet.explode();
+        ship.reduceHealth();
+    }
+
     public boolean isWaveDone() {
-        return enemies.isEmpty();
+        for(Enemy enemy : enemies) {
+            if (!(enemy instanceof Mig) && !(enemy instanceof Tree)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -154,11 +265,85 @@ public class Game {
     public void increaseShootEnemies() {
         shootEnemies++;
     }
+
     public void addBomb() {
         bombs.add(new Bomb(ship.x, ship.y, ship.getX_Speed() / 10, ship.getY_Speed() / 10));
     }
+
+    public void addRadioActiveBomb() {
+        radioActiveBombs.add(new RadioActiveBomb(ship.x, ship.y));
+    }
+
     public void addBomb(Bomb bomb) {
         bombs.add(bomb);
+    }
+
+    public void increaseCluster() {
+        numberOfCluster++;
+    }
+
+    public void decreaseCluster() {
+        numberOfCluster--;
+    }
+
+    public void increaseAtomicBomb() {
+        numberOfRadioActiveBomb++;
+    }
+
+    public void decreaseAtomicBomb() {
+        numberOfRadioActiveBomb--;
+    }
+
+    public int getNumberOfCluster() {
+        return numberOfCluster;
+    }
+
+    public int getNumberOfAtomicBomb() {
+        return numberOfRadioActiveBomb;
+    }
+
+    public int getWaveNumber() {
+        return waveNumber;
+    }
+
+    public void increaseBomb() {
+        numberOfBombs += 5;
+    }
+
+    public void decreaseBomb() {
+        numberOfBombs--;
+    }
+
+    public int getNumberOfBombs() {
+        return numberOfBombs;
+    }
+
+    public void resetBombTimer() {
+        timeSinceLastBomb = 0;
+    }
+
+    public void resetClusterTimer() {
+        timeSinceLastCluster = 0;
+    }
+
+    public ArrayList<Enemy> getEnemies() {
+        return enemies;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void gameOver() {
+        gameOver = true;
+    }
+
+    public void goBackToGame() {
+        gameOver = false;
+    }
+
+    public void addEnemyBullet(float x, float y) {
+        enemyBullets.add(new EnemyBullet(x, y));
     }
 }
 

@@ -7,14 +7,19 @@ import com.game.atomicbomber.AtomicBomber;
 import java.util.ArrayList;
 
 public class Tree extends Enemy{
-    private static final float TREE_WIDTH = 30;
-    private static final float TREE_HEIGHT = 60;
+    private static final float TREE_WIDTH = 60;
+    private static final float TREE_HEIGHT = 90;
     private static final int TREE_HITPOINT = 0;
     private static final ArrayList<Texture> TREE_TEXTURES = new ArrayList<>();
     static {
-        TREE_TEXTURES.add(new Texture("tree.png"));
-        TREE_TEXTURES.add(new Texture("tree2.png"));
-        TREE_TEXTURES.add(new Texture("tree3.png"));
+        TREE_TEXTURES.add(new Texture("trees/sprite1.png"));
+        TREE_TEXTURES.add(new Texture("trees/sprite2.png"));
+        TREE_TEXTURES.add(new Texture("trees/sprite3.png"));
+        TREE_TEXTURES.add(new Texture("trees/sprite4.png"));
+        TREE_TEXTURES.add(new Texture("trees/sprite5.png"));
+        TREE_TEXTURES.add(new Texture("trees/sprite6.png"));
+        TREE_TEXTURES.add(new Texture("trees/sprite7.png"));
+        TREE_TEXTURES.add(new Texture("trees/sprite8.png"));
     }
 
 

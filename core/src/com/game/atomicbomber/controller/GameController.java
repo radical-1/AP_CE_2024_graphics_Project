@@ -15,15 +15,33 @@ public class GameController {
         Game.getPlayingGame().setAccuracy(newAccuracy);
     }
     public static void shoot() {
-        Game.getPlayingGame().addBomb();
+        if(Game.getPlayingGame().getNumberOfBombs() >= 1 && Game.getPlayingGame().timeSinceLastBomb >= 1) {
+            Game.getPlayingGame().addBomb();
+            Game.getPlayingGame().decreaseBomb();
+            Game.getPlayingGame().resetBombTimer();
+        }
     }
     public static void shootCluster() {
-        ClusterBomb clusterBomb = new ClusterBomb(Game.getPlayingGame().getShip().x, Game.getPlayingGame().getShip().y);
-        for(int i = 0; i < clusterBomb.getBombs().size(); i++) {
-            Game.getPlayingGame().addBomb(clusterBomb.getBombs().get(i));
+        if(Game.getPlayingGame().timeSinceLastCluster >= 1 && Game.getPlayingGame().getNumberOfCluster() >= 1){
+            ClusterBomb clusterBomb = new ClusterBomb(Game.getPlayingGame().getShip().x, Game.getPlayingGame().getShip().y);
+            for (int i = 0; i < clusterBomb.getBombs().size(); i++) {
+                Game.getPlayingGame().addBomb(clusterBomb.getBombs().get(i));
+            }
+            Game.getPlayingGame().timeSinceLastCluster = 0;
+            Game.getPlayingGame().decreaseCluster();
+            Game.getPlayingGame().resetBombTimer();
         }
     }
     public static void shootRadioActive() {
-        //TODO : Implement RadioActive Bomb
+        if(Game.getPlayingGame().getNumberOfAtomicBomb() >= 1) {
+            Game.getPlayingGame().addRadioActiveBomb();
+            Game.getPlayingGame().decreaseAtomicBomb();
+        }
+    }
+    public static void increaseHealth() {
+        Game.getPlayingGame().getShip().increaseHealth();
+    }
+    public static void goBackToGame() {
+        Game.getPlayingGame().goBackToGame();
     }
 }
