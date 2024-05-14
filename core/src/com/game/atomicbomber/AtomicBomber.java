@@ -13,8 +13,8 @@ public class AtomicBomber extends Game {
 	public static NativeFileChooser fileChooser;
 	public static NativeFileChooserConfiguration fileChooserConfiguration;
 	public Skin skin;
-	public static final int WIDTH = 1080;
-	public static final int HEIGHT = 720;
+	public static final int WIDTH = 1260;
+	public static final int HEIGHT = 800;
 
 	private SpriteBatch batch;
 	

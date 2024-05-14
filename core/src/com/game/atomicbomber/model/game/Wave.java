@@ -43,11 +43,9 @@ public class Wave {
         for (int i = 0; i < numBuildings; i++) {
             float x = random.nextFloat() * AtomicBomber.WIDTH;
             game.addEnemy(new Building(x, 50));
-            System.out.println("Building spawned at :" + x);
         }
         for (int i = 0; i < numRiflepits; i++) {
             float x = random.nextFloat() * AtomicBomber.WIDTH;
-
             game.addEnemy(new riflePit(x, 50));
         }
         for (int i = 0; i < numTrees; i++) {
@@ -58,11 +56,16 @@ public class Wave {
 
         if(spawnMig) {
             int rand = random.nextInt() * 2;
-            float y = (random.nextFloat() * AtomicBomber.HEIGHT - 400) + 200;
+            float y = (random.nextFloat() * AtomicBomber.HEIGHT - 500) + 400;
             if(rand == 0)
                 game.addEnemy(new Mig(-160, y, Mig.MIG_SPEED, difficulty.getMigAttackRange()));
-            else
-                game.addEnemy(new Mig(AtomicBomber.WIDTH + 160, y, -Mig.MIG_SPEED, difficulty.getMigAttackRange()));
+            else {
+                Mig mig = new Mig(AtomicBomber.WIDTH + 160, y, -Mig.MIG_SPEED, difficulty.getMigAttackRange());
+                mig.getSprite().flip(true, false);
+                game.addEnemy(mig);
+
+
+            }
 
         }
     }

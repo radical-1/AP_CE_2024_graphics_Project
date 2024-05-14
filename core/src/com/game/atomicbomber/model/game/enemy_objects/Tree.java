@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class Tree extends Enemy{
     private static final float TREE_WIDTH = 30;
-    private static final float TREE_HEIGHT = 60;
+    private static final float TREE_HEIGHT = 80;
     private static final int TREE_HITPOINT = 0;
     private static final ArrayList<Texture> TREE_TEXTURES = new ArrayList<>();
     static {

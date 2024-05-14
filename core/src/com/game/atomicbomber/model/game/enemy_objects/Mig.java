@@ -67,7 +67,7 @@ public class Mig extends Enemy {
         if (isShipInRangeForAttack(Game.getPlayingGame().getShip().x, Game.getPlayingGame().getShip().y)) {
             shootRocket();
         }
-        for (MigRocket rocket : rockets) {
+        for (MigRocket rocket : new ArrayList<>(rockets)) {
             rocket.update(Game.getPlayingGame().getShip().x, Game.getPlayingGame().getShip().y, delta);
         }
         if(isOutOfScreen()){

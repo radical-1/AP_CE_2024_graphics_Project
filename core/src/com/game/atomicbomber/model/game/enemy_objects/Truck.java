@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.game.atomicbomber.AtomicBomber;
 
 public class Truck extends Enemy {
-    private static final float TRUCK_WIDTH = 60;
-    private static final float TRUCK_HEIGHT = 25;
+    private static final float TRUCK_WIDTH = 80;
+    private static final float TRUCK_HEIGHT = 40;
     private static final float TRUCK_SPEED = 12;
     private static final int TRUCK_HITPOINT = 10;
     private static final Texture truckTexture = new Texture("truck.png");

@@ -1,9 +1,9 @@
 package com.game.atomicbomber.model;
 
 public enum Difficulty {
-    EASY(5F, 5F, 5F, 5F),
-    MEDIUM(10F, 10F, 10F, (float) (0.75 * 5)),
-    HARD(15F, 15F, 15F, (float) (0.5 * 5));
+    EASY(25F, 25F, 25F, 25F),
+    MEDIUM(50F, 50F, 50F, (float) (0.75 * 25)),
+    HARD(75F, 75F, 75F, (float) (0.5 * 25));
     private float tankSpeed;
     private float migAttackRange;
     private float tankAttackRange;

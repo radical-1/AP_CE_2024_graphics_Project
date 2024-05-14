@@ -8,8 +8,8 @@ import com.game.atomicbomber.model.game.Game;
 import java.util.ArrayList;
 
 public class Tank extends Enemy {
-    public static final float TANK_WIDTH = 60;
-    public static final float TANK_HEIGHT = 30;
+    public static final float TANK_WIDTH = 80;
+    public static final float TANK_HEIGHT = 50;
     public static final int TANK_HITPOINT = 10;
     private static final Texture TANK_TEXTURE = new Texture("tank1.png");
     private Sprite sprite;

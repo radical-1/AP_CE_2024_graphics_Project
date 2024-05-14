@@ -16,7 +16,7 @@ public class GameInformation {
         this.isMute = false;
         this.isGrayScale = false;
         this.typeOfKeys = true;
-        this.music = GameMusic.BABEI;
+        this.music = GameMusic.KHOROOS  ;
     }
 
     public Difficulty getDifficulty() {
