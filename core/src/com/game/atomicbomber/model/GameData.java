@@ -1,5 +1,7 @@
 package com.game.atomicbomber.model;
 
+import com.game.atomicbomber.model.game.Game;
+
 public class GameData {
     private int kills;
     private float accuracy;
@@ -27,5 +29,12 @@ public class GameData {
 
     public Difficulty getDifficulty() {
         return difficulty;
+    }
+    public static void saveGameData(Game game) {
+        int kills = Game.getPlayingGame().getKills();
+        float accuracy = Game.getPlayingGame().getAccuracy();
+        int lastWave = Game.getPlayingGame().getWaveNumber();
+        Difficulty difficulty = Game.getPlayingGame().getDifficulty();
+        User.getLoggedInUser().addGame(new GameData(kills, accuracy, lastWave, difficulty));
     }
 }

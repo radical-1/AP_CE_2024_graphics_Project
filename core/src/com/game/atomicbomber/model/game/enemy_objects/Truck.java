@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.game.atomicbomber.AtomicBomber;
+import com.game.atomicbomber.model.game.Game;
 
 public class Truck extends Enemy {
     private static final float TRUCK_WIDTH = 130;
@@ -21,6 +22,10 @@ public class Truck extends Enemy {
     }
     @Override
     public void update(float delta) {
+        if(Game.getPlayingGame().isFroze()) {
+            render();
+            return;
+        }
         x += speed * delta;
         if(x + getWidth() >= AtomicBomber.WIDTH && speed > 0) {
             speed = -speed;

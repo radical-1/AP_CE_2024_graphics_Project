@@ -50,16 +50,17 @@ public class AvatarMenuScreen implements Screen {
 
         skin = AtomicBomber.singleton.skin;
 
-        this.backButton = new TextButton("Back", skin);
+        backButton = new TextButton("Back", skin);
+        backButton.setSize(200, 60);
 
-        backButton.setPosition(0, AtomicBomber.HEIGHT - backButton.getHeight());
+        backButton.setPosition(50, AtomicBomber.HEIGHT - 150);
         chooseNewAvatar();
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 dispose();
                 ScreenManager.getInstance().removeScreen("AvatarMenuScreen");
-                ScreenManager.getInstance().setScreen("MainMenuScreen");
+                ScreenManager.getInstance().setScreen("ProfileMenuScreen");
             }
         });
         stage.addActor(backButton);

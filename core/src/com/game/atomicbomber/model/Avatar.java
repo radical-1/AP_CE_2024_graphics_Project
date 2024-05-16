@@ -2,6 +2,8 @@ package com.game.atomicbomber.model;
 
 import com.badlogic.gdx.graphics.Texture;
 
+import java.util.Random;
+
 public enum Avatar {
     AVATAR1("avatars/avatar1.jpg"),
     AVATAR2("avatars/avatar2.png"),
@@ -24,8 +26,12 @@ public enum Avatar {
     public String getPath() {
         return path;
     }
-    public static String getRandomAvatar() {
-        return values()[(int) (Math.random() * values().length)].getPath();
+    public static Avatar getRandomAvatar() {
+        // Assign a random avatar
+        Avatar[] avatars = Avatar.values();
+        Random random = new Random();
+        int randomIndex = random.nextInt(avatars.length);
+        return avatars[randomIndex];
     }
     public Texture getTexture() {
         return new Texture(path);

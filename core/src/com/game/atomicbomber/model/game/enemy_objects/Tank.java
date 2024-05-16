@@ -33,6 +33,10 @@ public class Tank extends Enemy {
 
     @Override
     public void update(float delta) {
+        if(Game.getPlayingGame().isFroze()) {
+            render();
+            return;
+        }
         timeSinceLastShoot += delta;
         x += speed * delta;
 

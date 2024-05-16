@@ -28,7 +28,7 @@ public class User {
         this.password = password;
         this.score = 0;
         this.highscore = 0;
-        this.avatar = Avatar.AVATAR1;
+        this.avatar = Avatar.getRandomAvatar();
         this.gameInfo = new GameInformation();
         this.games = new ArrayList<>();
     }
@@ -173,8 +173,11 @@ public class User {
         }
         return difficulty;
     }
-    public void removeGame(Game game) {
+    public void removeGame(GameData game) {
         games.remove(game);
+    }
+    public void addGame(GameData game) {
+        games.add(game);
     }
     public int getAccuracy() {
         float accuracy = 0;

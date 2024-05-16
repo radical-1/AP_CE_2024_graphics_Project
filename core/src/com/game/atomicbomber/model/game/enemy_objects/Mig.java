@@ -42,6 +42,10 @@ public class Mig extends Enemy {
 
     @Override
     public void update(float delta) {
+        if(Game.getPlayingGame().isFroze()) {
+            render();
+            return;
+        }
         x -= MIG_SPEED * delta;
         if (isShipInRangeForAttack(Game.getPlayingGame().getShip().x, Game.getPlayingGame().getShip().y) &&
                 timerForShootBullet > 4f) {

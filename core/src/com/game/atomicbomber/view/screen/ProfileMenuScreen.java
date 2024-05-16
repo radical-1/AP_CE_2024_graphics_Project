@@ -4,9 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -32,6 +35,8 @@ public class ProfileMenuScreen extends Menu implements Screen {
     private TextButton removeAccountButton;
     private TextButton logoutButton;
     private TextButton goToAvatarMenuButton;
+    private TextButton backButton;
+
 
     private Texture background;
     private SpriteBatch batch;
@@ -39,7 +44,6 @@ public class ProfileMenuScreen extends Menu implements Screen {
     private Texture currentAvatar;
     private User user;
     private Stage stage;
-    private TextButton backButton;
     private Skin skin;
     private Dialog errorDialog;
 
@@ -52,7 +56,6 @@ public class ProfileMenuScreen extends Menu implements Screen {
         font = new BitmapFont();
         user = User.getLoggedInUser();
         currentAvatar = user.getAvatar();
-
         skin = AtomicBomber.singleton.skin;
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
@@ -75,6 +78,7 @@ public class ProfileMenuScreen extends Menu implements Screen {
         removeAccountButton = new TextButton("Remove Account", skin);
         logoutButton = new TextButton("Logout", skin);
         goToAvatarMenuButton = new TextButton("Go to Avatar Menu", skin);
+        backButton = new TextButton("Back", skin);
 
         // Set the size of the buttons
         removeAccountButton.setSize(400, 100);
@@ -84,15 +88,17 @@ public class ProfileMenuScreen extends Menu implements Screen {
         passwordField.setSize(400, 100);
         changeUsernameButton.setSize(300, 100);
         changePasswordButton.setSize(300, 100);
+        backButton.setSize(300, 100);
 
         // Set the position of the buttons
-        removeAccountButton.setPosition(100, 500);
-        usernameField.setPosition(10, 400);
-        passwordField.setPosition(10, 300);
-        changeUsernameButton.setPosition(400, 400);
-        changePasswordButton.setPosition(400, 300);
-        goToAvatarMenuButton.setPosition(100, 200);
+        removeAccountButton.setPosition(100, 150);
+        usernameField.setPosition(200, 500);
+        passwordField.setPosition(200, 350);
+        changeUsernameButton.setPosition(600, 500);
+        changePasswordButton.setPosition(600, 350);
+        goToAvatarMenuButton.setPosition(AtomicBomber.WIDTH - 500, 50);
         logoutButton.setPosition(100, 50);
+        backButton.setPosition(50, AtomicBomber.HEIGHT - 150);
 
 
 
@@ -108,6 +114,8 @@ public class ProfileMenuScreen extends Menu implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 User.setLoggedInUser(null);
+                dispose();
+                ScreenManager.getInstance().removeScreen("ProfileMenuScreen");
                 ScreenManager.getInstance().setScreen("RegisterScreen");
             }
         });
@@ -133,6 +141,14 @@ public class ProfileMenuScreen extends Menu implements Screen {
                 ScreenManager.getInstance().setScreen("AvatarMenuScreen");
             }
         });
+        backButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                dispose();
+                ScreenManager.getInstance().removeScreen("ProfileMenuScreen");
+                ScreenManager.getInstance().setScreen("MainMenuScreen");
+            }
+        });
 
         // Add the buttons to the stage
         stage.addActor(removeAccountButton);
@@ -142,33 +158,27 @@ public class ProfileMenuScreen extends Menu implements Screen {
         stage.addActor(changePasswordButton);
         stage.addActor(logoutButton);
         stage.addActor(goToAvatarMenuButton);
+        stage.addActor(backButton);
     }
 
     private void removeAccountHandler() {
-        //TODO : debug needed
-        Dialog dialog = new Dialog("Confirmation", skin);
-        dialog.text("Are you sure you want to remove your account?");
-        // Add "Yes" button
-        dialog.button("Yes", true).addListener(new ClickListener() {
+        Dialog confirmDialog = new Dialog("Confirmation", skin) {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-
-                User.removeUser(user);
-                User.setLoggedInUser(null);
-                ScreenManager.getInstance().setScreen("RegisterScreen");
+            protected void result(Object object) {
+                boolean result = (Boolean) object;
+                if (result) {
+                    // Remove the account and switch to the register screen
+                    User.removeUser(User.getLoggedInUser());
+                    ScreenManager.getInstance().removeScreen("ProfileMenuScreen");
+                    ScreenManager.getInstance().setScreen("RegisterScreen");
+                }
             }
-        });
+        };
 
-        // Add "No" button
-        dialog.button("No", false).addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-
-                dialog.hide();
-            }
-        });
-
-        dialog.show(stage);
+        confirmDialog.text("Are you sure you want to remove your account?");
+        confirmDialog.button("Yes", true); // The second parameter is the result object
+        confirmDialog.button("No", false);
+        confirmDialog.show(stage);
     }
 
     public void changeUsernameHandler() {
@@ -203,10 +213,11 @@ public class ProfileMenuScreen extends Menu implements Screen {
 
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.draw(currentAvatar,Gdx.graphics.getWidth() - 300,Gdx.graphics.getHeight() - 300, 300, 300);
+        batch.draw(currentAvatar,Gdx.graphics.getWidth() - 300,Gdx.graphics.getHeight() - 300, 200, 200);
         batch.end();
         stage.act(delta);
         stage.draw();
+
     }
 
     @Override

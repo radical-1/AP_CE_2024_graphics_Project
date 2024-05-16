@@ -44,4 +44,11 @@ public class GameController {
     public static void goBackToGame() {
         Game.getPlayingGame().goBackToGame();
     }
+    public static void freeze() {
+        if(Game.getPlayingGame().canFreeze()) {
+            Game.getPlayingGame().freeze();
+            Game.getPlayingGame().resetFreezeBarValue();
+        }
+
+    }
 }

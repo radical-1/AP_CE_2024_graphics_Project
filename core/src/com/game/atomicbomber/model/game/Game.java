@@ -25,6 +25,9 @@ public class Game {
     private int numberOfCluster;
     private int numberOfRadioActiveBomb;
     private int numberOfBombs;
+    private boolean isFroze;
+    private float freezeTimer;
+    private float freezeBarValue = 0.0f;
     private boolean gameOver;
     private float migSpawnerTimer;
     //enemy objects
@@ -59,6 +62,8 @@ public class Game {
         numberOfRadioActiveBomb = 0;
         numberOfBombs = 10;
         gameOver = false;
+        isFroze = false;
+        freezeTimer = 0;
         startWave();
     }
 
@@ -121,6 +126,13 @@ public class Game {
     }
 
     public void update(float delta) {
+        if(isFroze) {
+            freezeTimer += delta;
+            if(freezeTimer >= 7) {
+                isFroze = false;
+                freezeTimer = 0;
+            }
+        }
         timeSinceLastBomb += delta;
         timeSinceLastCluster += delta;
         if (currentWave.getSpawnMig()) {
@@ -138,10 +150,6 @@ public class Game {
             waveNumber++;
             startWave();
             //TODO : show wave win message
-        }
-        if (gameOver) {
-            //TODO : show game over message
-
         }
     }
 
@@ -179,6 +187,10 @@ public class Game {
             for (Bomb item : new ArrayList<>(bombs)) {
                 if (isCollision(value, item)) {
                     handleCollision(value, item);
+                    // Increase the freeze bar value by 10% for each kill
+                    freezeBarValue += 0.1f;
+                    // Clamp the value between 0.0 and 1.0
+                    freezeBarValue = Math.min(freezeBarValue, 1.0f);
                 }
             }
         }
@@ -227,6 +239,7 @@ public class Game {
                     bonuses.add(new Bonus(enemy.getX(), enemy.getY(), 3));
                 }
                 GameController.increaseKills(enemy.getHitPoint());
+                freezeBarValue += 0.1f;
             }
         }
     }
@@ -344,6 +357,22 @@ public class Game {
 
     public void addEnemyBullet(float x, float y) {
         enemyBullets.add(new EnemyBullet(x, y));
+    }
+
+    public void freeze() {
+         isFroze = true;
+    }
+    public boolean isFroze() {
+        return isFroze;
+    }
+    public boolean canFreeze() {
+        return freezeBarValue >= 1.0f;
+    }
+    public float getFreezeBarValue() {
+        return freezeBarValue;
+    }
+    public void resetFreezeBarValue() {
+        freezeBarValue = 0.0f;
     }
 }
 

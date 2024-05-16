@@ -10,12 +10,14 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.game.atomicbomber.AtomicBomber;
 import com.game.atomicbomber.controller.GameController;
 import com.game.atomicbomber.controller.ScreenManager;
+import com.game.atomicbomber.model.GameData;
 import com.game.atomicbomber.model.game.*;
 import com.game.atomicbomber.model.User;
 import com.game.atomicbomber.view.GameMusic;
@@ -24,6 +26,7 @@ import com.game.atomicbomber.view.KeyGuide;
 public class MainGameScreen implements Screen {
     private static final Texture backgroundTexture = new Texture("background.jpg");
     private static final Texture groundTexture = new Texture("ground.jpg");
+    private static final Texture freezeTexture = new Texture("freeze.png");
     private static final Texture bombIconTexture = new Texture("bomb_icon.png");
     private static final Texture radioActiveBombIconTexture = new Texture("radioactive_bomb_icon.png");
     private static final Texture clusterBombIconTexture = new Texture("cluster_bomb_icon.png");
@@ -34,6 +37,7 @@ public class MainGameScreen implements Screen {
     private Music backgroundMusic;
     private Sprite background;
     private Sprite ground;
+    private Sprite freeze;
     private TextButton pauseButton;
     private Stage stage;
     private boolean isPaused;
@@ -41,6 +45,7 @@ public class MainGameScreen implements Screen {
     private Window gameOverWindow;
     private Window changeMusicWindow;
     private Window guideWindow;
+    private ProgressBar freezeBar;
     //Info part
     private Sprite bombIcon;
     private Sprite radioActiveBombIcon;
@@ -61,6 +66,12 @@ public class MainGameScreen implements Screen {
 
     public MainGameScreen(AtomicBomber game) {
 
+        ProgressBar.ProgressBarStyle progressBarStyle = AtomicBomber.singleton.skin.get("default-horizontal", ProgressBar.ProgressBarStyle.class);
+
+        // Create the ProgressBar
+        freezeBar = new ProgressBar(0f, 1f, 0.1f, false, progressBarStyle);
+        freezeBar.setBounds(AtomicBomber.WIDTH - 300, AtomicBomber.HEIGHT - 100, 200, 50);
+
         isPaused = false;
         this.game = new Game(User.getLoggedInUser());
         stage = new Stage();
@@ -71,8 +82,11 @@ public class MainGameScreen implements Screen {
 
         background = new Sprite(backgroundTexture);
         background.setSize(AtomicBomber.WIDTH, AtomicBomber.HEIGHT);
+        freeze = new Sprite(freezeTexture);
+        freeze.setSize(AtomicBomber.WIDTH, AtomicBomber.HEIGHT);
         ground = new Sprite(groundTexture);
-        ground.setSize(AtomicBomber.WIDTH, 75);
+        ground.setSize(AtomicBomber.WIDTH, 80);
+
 
         pauseButton = new TextButton("Pause", game.skin);
         pauseButton.setPosition(50, AtomicBomber.HEIGHT - 150); // replace with the desired position
@@ -88,6 +102,7 @@ public class MainGameScreen implements Screen {
         stage.addActor(waveNumberLabel);
         stage.addActor(difficultyLabel);
         stage.addActor(healthLabel);
+        stage.addActor(freezeBar);
 
 
     }
@@ -164,7 +179,7 @@ public class MainGameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.H) && Game.getPlayingGame().isGameOver()) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.H) && Game.getPlayingGame().isGameOver()) {
             isPaused = false;
             backgroundMusic.play();
             GameController.increaseHealth();
@@ -188,6 +203,9 @@ public class MainGameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             GameController.shootRadioActive();
         }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.TAB)){
+            GameController.freeze();
+        }
 
         //Moving part
 
@@ -198,6 +216,9 @@ public class MainGameScreen implements Screen {
         AtomicBomber.singleton.getBatch().begin();
         background.draw(AtomicBomber.singleton.getBatch());
         ground.draw(AtomicBomber.singleton.getBatch());
+        if (game.isFroze()) {
+            freeze.draw(AtomicBomber.singleton.getBatch());
+        }
         bombIcon.draw(AtomicBomber.singleton.getBatch());
         radioActiveBombIcon.draw(AtomicBomber.singleton.getBatch());
         clusterBombIcon.draw(AtomicBomber.singleton.getBatch());
@@ -206,7 +227,17 @@ public class MainGameScreen implements Screen {
         healthIcon.draw(AtomicBomber.singleton.getBatch());
         game.getShip().render(delta);
         game.update(delta);
+        freezeBar.setValue(game.getFreezeBarValue());
         AtomicBomber.singleton.getBatch().end();
+        updateButtons();
+
+        stage.act(delta);
+        stage.draw();
+
+
+    }
+
+    private void updateButtons() {
         bombCountLabel.setText("Bombs: " + Game.getPlayingGame().getNumberOfBombs());
         radioActiveBombCountLabel.setText("Radioactive Bombs: " + Game.getPlayingGame().getNumberOfAtomicBomb());
         clusterBombCountLabel.setText("Cluster Bombs: " + Game.getPlayingGame().getNumberOfCluster());
@@ -233,20 +264,15 @@ public class MainGameScreen implements Screen {
         } else {
             killCountLabel.setColor(0, 2, 1, 1);
         }
-        if(Game.getPlayingGame().getShip().getHealth() <= 50) {
+        if (Game.getPlayingGame().getShip().getHealth() <= 50) {
             healthLabel.setColor(1, 0, 0, 1);
         } else {
             healthLabel.setColor(0, 2, 1, 1);
         }
-        if(Game.getPlayingGame().isGameOver()) {
+        if (Game.getPlayingGame().isGameOver()) {
             handleGameOver();
 
         }
-
-        stage.act(delta);
-        stage.draw();
-
-
     }
 
     private void handleGameOver() {
@@ -255,7 +281,7 @@ public class MainGameScreen implements Screen {
         gameOverWindow = new Window("Game Over", AtomicBomber.singleton.skin);
         gameOverWindow.setResizable(false);
         gameOverWindow.setSize(400, 200);
-        gameOverWindow.setPosition(AtomicBomber.WIDTH / 2 - gameOverWindow.getWidth()/ 2, AtomicBomber.HEIGHT / 2 - gameOverWindow.getHeight() / 2); // Center the window
+        gameOverWindow.setPosition(AtomicBomber.WIDTH / 2 - gameOverWindow.getWidth() / 2, AtomicBomber.HEIGHT / 2 - gameOverWindow.getHeight() / 2); // Center the window
 
         TextButton endGameButton = new TextButton("End Game", AtomicBomber.singleton.skin);
         gameOverWindow.add(endGameButton);
@@ -281,7 +307,7 @@ public class MainGameScreen implements Screen {
         pauseWindow = new Window("Game Paused", AtomicBomber.singleton.skin);
         pauseWindow.setResizable(false);
         pauseWindow.setSize(600, 600);
-        pauseWindow.setPosition(AtomicBomber.WIDTH / 2 - pauseWindow.getWidth()/ 2, AtomicBomber.HEIGHT / 2 - pauseWindow.getHeight() / 2); // Center the window
+        pauseWindow.setPosition(AtomicBomber.WIDTH / 2 - pauseWindow.getWidth() / 2, AtomicBomber.HEIGHT / 2 - pauseWindow.getHeight() / 2); // Center the window
 
         // Create buttons for each action
 
@@ -330,6 +356,7 @@ public class MainGameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 //TODO : handle saving game
+                GameData.saveGameData(Game.getPlayingGame());
                 dispose();
                 ScreenManager.getInstance().removeScreen("MainGameScreen");
                 ScreenManager.getInstance().setScreen("MainMenuScreen");
@@ -339,7 +366,6 @@ public class MainGameScreen implements Screen {
         exitWithoutSavingButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                User.getLoggedInUser().removeGame(Game.getPlayingGame());
                 dispose();
                 ScreenManager.getInstance().removeScreen("MainGameScreen");
                 ScreenManager.getInstance().setScreen("MainMenuScreen");
@@ -370,6 +396,7 @@ public class MainGameScreen implements Screen {
         backgroundMusic.dispose();
 
     }
+
     private void changeMusic() {
         // Hide the pause window
         pauseWindow.setVisible(false);
@@ -378,7 +405,7 @@ public class MainGameScreen implements Screen {
         Window musicSelectionWindow = new Window("Select Music", AtomicBomber.singleton.skin);
         musicSelectionWindow.setResizable(false);
         musicSelectionWindow.setSize(600, 600);
-        musicSelectionWindow.setPosition(AtomicBomber.WIDTH / 2 - musicSelectionWindow.getWidth()/ 2, AtomicBomber.HEIGHT / 2 - musicSelectionWindow.getHeight() / 2); // Center the window
+        musicSelectionWindow.setPosition(AtomicBomber.WIDTH / 2 - musicSelectionWindow.getWidth() / 2, AtomicBomber.HEIGHT / 2 - musicSelectionWindow.getHeight() / 2); // Center the window
 
         // Create buttons for each music option
         TextButton music1Button = new TextButton("Khoroos Khoroos", AtomicBomber.singleton.skin);
@@ -443,11 +470,12 @@ public class MainGameScreen implements Screen {
         // Add the music selection window to the stage
         stage.addActor(musicSelectionWindow);
     }
+
     private void handleGuideWindow() {
         guideWindow = new Window("Guide for Keys", AtomicBomber.singleton.skin);
         guideWindow.setResizable(false);
         guideWindow.setSize(600, 800);
-        guideWindow.setPosition(AtomicBomber.WIDTH / 2 - guideWindow.getWidth()/ 2, AtomicBomber.HEIGHT / 2 - guideWindow.getHeight() / 2); // Center the window
+        guideWindow.setPosition(AtomicBomber.WIDTH / 2 - guideWindow.getWidth() / 2, AtomicBomber.HEIGHT / 2 - guideWindow.getHeight() / 2); // Center the window
 
         // Create a label for each key guide
         for (KeyGuide keyGuide : KeyGuide.values()) {
