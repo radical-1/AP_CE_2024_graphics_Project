@@ -83,4 +83,7 @@ public abstract class Enemy {
         return getBoundingRectangle().overlaps(new Rectangle(x, y, width, height));
     }
 
+    public void setFire(boolean fire) {
+
+    }
 }

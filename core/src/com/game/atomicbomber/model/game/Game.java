@@ -29,10 +29,9 @@ public class Game {
     private float freezeTimer;
     private float freezeBarValue = 0.0f;
     private boolean gameOver;
-    private boolean gameFinished;
-    private boolean migWarning;
     private boolean isNewWave;
     private float migSpawnerTimer;
+    private boolean migWarning;
     //enemy objects
     private ArrayList<Enemy> enemies;
     //ship
@@ -65,8 +64,8 @@ public class Game {
         numberOfRadioActiveBomb = 0;
         numberOfBombs = 10;
         gameOver = false;
-        gameFinished = false;
         isFroze = false;
+        migWarning = false;
         freezeTimer = 0;
         startWave();
     }
@@ -83,7 +82,6 @@ public class Game {
                 currentWave = new Wave(7, 4, 3, 3, 10, true, difficulty);
                 break;
             default:
-                gameFinished = true;
                 break;
         }
 
@@ -137,10 +135,12 @@ public class Game {
         if (currentWave.getSpawnMig()) {
             migSpawnerTimer += delta;
             if (migSpawnerTimer >= difficulty.getTimeBetweenMigPassing()) {
+                migWarning = false;
                 currentWave.spawnMig();
                 migSpawnerTimer = 0;
             }
             if (migSpawnerTimer >= 2 * (difficulty.getTimeBetweenMigPassing() / 3)) {
+                //show migWarning
                 migWarning = true;
             }
         }
@@ -226,7 +226,7 @@ public class Game {
         bomb.explode();
         for (Enemy enemy : new ArrayList<>(enemies)) {
             if (bomb.isEnemyInRange(enemy.getX(), enemy.getY())) {
-                enemies.remove(enemy);
+
                 if (enemy instanceof Building) {
                     bonuses.add(new Bonus(enemy.getX(), enemy.getY(), 2));
                 } else if (enemy instanceof riflePit) {
@@ -259,14 +259,14 @@ public class Game {
     }
 
     public void increaseShootBullets() {
-        System.out.println("Shoot bullets: " + shootBullets);
+
         shootBullets++;
     }
 
 
 
     public void increaseMissedBullets() {
-        System.out.println("Shoot enemies: " + missedBullets);
+
         missedBullets++;
     }
 
@@ -374,7 +374,7 @@ public class Game {
         return isNewWave;
     }
     public boolean WinOrLost() {
-        return gameFinished;
+        return ship.getHealth() > 0;
         //true means that user won the game
         //false means that user lost the game
     }
@@ -385,6 +385,9 @@ public class Game {
 
     public void spawnOneTankInRandomPlace() {
         currentWave.spawnTank();
+    }
+    public boolean isMigWarning() {
+        return migWarning;
     }
 }
 

@@ -33,6 +33,7 @@ public class MainGameScreen implements Screen {
     private static final Texture killIconTexture = new Texture("kill_icon.png");
     private static final Texture waveIconTexture = new Texture("wave_icon.png");
     private static final Texture healthIconTexture = new Texture("health_icon.png");
+    private static final Texture migWarningTexture = new Texture("migwarning.png");
 
     private Music backgroundMusic;
     private Sprite background;
@@ -228,10 +229,23 @@ public class MainGameScreen implements Screen {
 
 
         AtomicBomber.singleton.getBatch().begin();
+        drawObjects(delta);
+        AtomicBomber.singleton.getBatch().end();
+        updateButtons();
+
+        stage.act(delta);
+        stage.draw();
+
+
+    }
+    private void drawObjects(float delta) {
         background.draw(AtomicBomber.singleton.getBatch());
         ground.draw(AtomicBomber.singleton.getBatch());
         if (Game.getPlayingGame().isFroze()) {
             freeze.draw(AtomicBomber.singleton.getBatch());
+        }
+        if(Game.getPlayingGame().isMigWarning()){
+            AtomicBomber.singleton.getBatch().draw(migWarningTexture, AtomicBomber.WIDTH - 200, AtomicBomber.HEIGHT - 200, 100, 100);
         }
         bombIcon.draw(AtomicBomber.singleton.getBatch());
         radioActiveBombIcon.draw(AtomicBomber.singleton.getBatch());
@@ -242,13 +256,6 @@ public class MainGameScreen implements Screen {
         Game.getPlayingGame().getShip().render(delta);
         Game.getPlayingGame().update(delta);
         freezeBar.setValue(Game.getPlayingGame().getFreezeBarValue());
-        AtomicBomber.singleton.getBatch().end();
-        updateButtons();
-
-        stage.act(delta);
-        stage.draw();
-
-
     }
 
     private void updateButtons() {

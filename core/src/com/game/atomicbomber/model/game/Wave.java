@@ -57,12 +57,13 @@ public class Wave {
         }
     }
     public void spawnMig() {
-        int rand = random.nextInt() * 2;
-        float y = (random.nextFloat() * AtomicBomber.HEIGHT - 500) + 700;
+        int rand = Math.abs(random.nextInt()) % 2;
+
+        float y = (Math.abs(random.nextFloat()) % (AtomicBomber.HEIGHT/ 2)) + AtomicBomber.HEIGHT / 4;
         if(rand == 0)
             Game.getPlayingGame().addEnemy(new Mig(-160, y, Mig.MIG_SPEED, difficulty.getMigAttackRange()));
         else {
-            Mig mig = new Mig(AtomicBomber.WIDTH + 160, y, -Mig.MIG_SPEED, difficulty.getMigAttackRange());
+            Mig mig = new Mig(AtomicBomber.WIDTH + 160, y, (Mig.MIG_SPEED) * -1, difficulty.getMigAttackRange());
             mig.getSprite().flip(true, false);
             Game.getPlayingGame().addEnemy(mig);
         }

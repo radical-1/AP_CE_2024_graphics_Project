@@ -63,7 +63,6 @@ public class Collision {
         this.getExplosionAnimation().setPlayMode(Animation.PlayMode.NORMAL);
         if (this.getExplosionAnimation().isAnimationFinished(bomb.time)) {
             bomb.setExploded();
-            bomb.stopSoundEffect();
         }
     }
 

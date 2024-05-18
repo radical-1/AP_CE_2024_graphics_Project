@@ -13,7 +13,8 @@ public class EnemyBullet {
     private static final Texture ENEMY_BULLET_TEXTURE = new Texture("enemy_bullet.png");
     private static final float WIDTH = 25;
     private static final float HEIGHT = 25;
-    private static final float SPEED = 200;
+    private static final float SPEED = 500;
+
 
     private Sprite bulletSprite;
     public float time = 0;
@@ -21,27 +22,25 @@ public class EnemyBullet {
     private float bulletTimer = 0;
     private boolean isExploded;
     private boolean canMove;
-
+    private float angle;
 
     public EnemyBullet(float x, float y) {
+        Ship ship = Game.getPlayingGame().getShip();
         position = new Vector2(x, y);
         isExploded = false;
         canMove = true;
         bulletSprite = new Sprite(ENEMY_BULLET_TEXTURE);
         bulletSprite.setSize(WIDTH, HEIGHT);
+        angle = (float) Math.atan2(ship.y - position.y, ship.x - position.x);
+        bulletSprite.setRotation((float) Math.toDegrees(angle));
     }
 
     public void update(float delta) {
         bulletTimer += delta;
         if(canMove) {
-            float playerXPosition = Game.getPlayingGame().getShip().x;
-            float playerYPosition = Game.getPlayingGame().getShip().y;
-
-            float angle = (float) Math.atan2(playerYPosition - position.y, playerXPosition - position.x);
             position.x += SPEED * Math.cos(angle) * delta;
             position.y += SPEED * Math.sin(angle) * delta;
 
-            handleRotation();
         }
 
         Ship ship = Game.getPlayingGame().getShip();
@@ -53,16 +52,6 @@ public class EnemyBullet {
             explode();
         }
         render();
-    }
-
-    public void handleRotation() {
-        float playerX = Game.getPlayingGame().getShip().x;
-        float playerY = Game.getPlayingGame().getShip().y;
-
-        float angle = (float) Math.atan2(playerY - position.y, playerX - position.x);
-        angle = (float) Math.toDegrees(angle);
-        bulletSprite.setRotation(angle);
-
     }
 
     public void explode() {
@@ -89,10 +78,10 @@ public class EnemyBullet {
     }
     public boolean isCollidingWithShip(Ship ship) {
         // Get the rectangle representing the ship
-        Rectangle shipRect = new Rectangle(ship.getX(), ship.getY(), ship.getWidth(), ship.getHeight());
+        Rectangle shipRect = new Rectangle(ship.getX(), ship.getY(), ship.getWidth()/ 3, ship.getHeight()/ 3);
 
         // Get the rectangle representing the enemy bullet
-        Rectangle bulletRect = new Rectangle(position.x, position.y, WIDTH, HEIGHT);
+        Rectangle bulletRect = new Rectangle(position.x, position.y, WIDTH /3 , HEIGHT/3);
 
         // Check if the rectangles overlap
         return shipRect.overlaps(bulletRect);
