@@ -10,7 +10,7 @@ public class DesktopLauncher {
 
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setForegroundFPS(120);
+		config.setForegroundFPS(60);
 		config.useVsync(true);
 		config.setTitle("Atomic Bomber");
 		config.setWindowedMode(AtomicBomber.WIDTH, AtomicBomber.HEIGHT);

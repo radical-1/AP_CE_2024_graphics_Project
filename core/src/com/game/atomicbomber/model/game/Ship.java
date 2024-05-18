@@ -19,6 +19,7 @@ public class Ship {
     private static final float MAX_SPEED = 600;
 
     private float timeSinceLastCrash;
+    private float timeSinceLastBomb;
     private static ArrayList<Texture> SHIP_TEXTURES = new ArrayList<>();
     private int health;
     static {
@@ -27,7 +28,7 @@ public class Ship {
     }
 
     public static final int SHIP_WIDTH = 80;
-    public static final int SHIP_HEIGHT = 60;
+    public static final int SHIP_HEIGHT = 80;
 
     private float X_Speed;
     private float Y_Speed;
@@ -36,7 +37,6 @@ public class Ship {
     public float y;
     private float direction;
     private Sprite spaceshipSprite;
-
 
     public Ship() {
         x = (float) (AtomicBomber.WIDTH / 2 - SHIP_WIDTH / 2);
@@ -50,10 +50,13 @@ public class Ship {
         Y_Speed = 0;
         health = 100;
         timeSinceLastCrash = 0;
+        timeSinceLastBomb = 0;
     }
 
     public void render(float delta) {
         timeSinceLastCrash += delta;
+        timeSinceLastBomb += delta;
+
         // Update speed based on user input
         if (Gdx.input.isKeyPressed(User.getLoggedInUser().getGameInfo().getLeftKey())) {
             if (X_Speed > -MAX_SPEED)
@@ -81,10 +84,10 @@ public class Ship {
 
             if (Y_Speed < MAX_SPEED)
                 Y_Speed += SPEED * delta;
-            if (direction > 90) {
+            if (direction > 90 && direction <= 270) {
                 direction -= 2;
                 spaceshipSprite.rotate(-2);
-            } else if (direction < 90) {
+            } else {
                 direction += 2;
                 spaceshipSprite.rotate(2);
             }
@@ -94,10 +97,10 @@ public class Ship {
 
             if (Y_Speed > -MAX_SPEED)
                 Y_Speed -= 100 * delta;
-            if (direction > 270) {
+            if (direction > 270 || direction <= 90) {
                 direction -= 2;
                 spaceshipSprite.rotate(-2);
-            } else if (direction < 270) {
+            } else {
                 direction += 2;
                 spaceshipSprite.rotate(2);
             }
@@ -133,7 +136,6 @@ public class Ship {
         } else if (x > AtomicBomber.WIDTH + 80) {
             x = -70;
         }
-
         if(isCrashed()) {
             health -= 50;
         }
@@ -191,5 +193,11 @@ public class Ship {
     }
     public float getY() {
         return y;
+    }
+    public float getTimeSinceLastBomb() {
+        return timeSinceLastBomb;
+    }
+    public void resetTimeSinceLastBomb() {
+        timeSinceLastBomb = 0;
     }
 }

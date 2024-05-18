@@ -20,6 +20,7 @@ import com.game.atomicbomber.controller.RegisterLoginController;
 
 
 public class RegisterScreen implements Screen {
+    private static final Texture backgroundTexture = new Texture("RegisterBackground.jpeg");
 
 
     private Sprite background;
@@ -35,8 +36,6 @@ public class RegisterScreen implements Screen {
 
     public RegisterScreen(AtomicBomber game) {
 
-        this.background = new Sprite();
-        Texture backgroundTexture = new Texture("RegisterBackground.jfif");
         this.background = new Sprite(backgroundTexture);
         this.background.setSize(AtomicBomber.WIDTH, AtomicBomber.HEIGHT);
 

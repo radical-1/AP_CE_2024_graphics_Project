@@ -17,8 +17,7 @@ public class User {
     private static User loggedInUser;
     private String username;
     private String password;
-    private int score;
-    private int highscore;
+
     private Avatar avatar;
     private GameInformation gameInfo;
     private ArrayList<GameData> games;
@@ -26,8 +25,7 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.score = 0;
-        this.highscore = 0;
+
         this.avatar = Avatar.getRandomAvatar();
         this.gameInfo = new GameInformation();
         this.games = new ArrayList<>();
@@ -39,22 +37,6 @@ public class User {
 
     public String getPassword() {
         return password;
-    }
-
-    public int getScore() {
-        return score;
-    }
-
-    public int getHighscore() {
-        return highscore;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public void setHighscore(int highscore) {
-        this.highscore = highscore;
     }
     public void setAvatar(Avatar avatar) {
         this.avatar = avatar;
@@ -186,5 +168,18 @@ public class User {
         }
         return (int)((accuracy / games.size()) * 100);
     }
-
+    public void removeLastGameData() {
+        games.remove(games.size() - 1);
+    }
+    public void updateInfo() {
+        if(this.username.equals("_Geust_"))
+            return;
+        User.removeUser(this);
+        this.save();
+    }
+    public int getLastWave() {
+        if(games.isEmpty())
+            return 0;
+        return games.get(games.size() - 1).getLastWave();
+    }
 }

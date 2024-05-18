@@ -2,15 +2,17 @@ package com.game.atomicbomber.view.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Align;
 import com.game.atomicbomber.AtomicBomber;
 import com.game.atomicbomber.controller.ScreenManager;
+import com.game.atomicbomber.model.User;
+import com.game.atomicbomber.model.game.Game;
 
 public class MainMenuScreen implements Screen {
     private static final int BASE_Y = 300;
@@ -25,10 +27,13 @@ public class MainMenuScreen implements Screen {
 
     private TextButton settingsButton;
     private TextButton profileButton;
-    private TextButton playButton;
+    private TextButton startNewGameButton;
+    private TextButton continueGameButton;
     private TextButton exitButton;
     private TextButton showLeaderBoard;
-
+    private Label loggedInUserUsername;
+    private Texture loggedInUserAvatar;
+    private Sprite avatarSprite;
 
 
     public MainMenuScreen(AtomicBomber game) {
@@ -41,14 +46,25 @@ public class MainMenuScreen implements Screen {
         skin = game.skin;
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
+        loggedInUserUsername = new Label(User.getLoggedInUser().getUsername(), skin);
+        loggedInUserUsername.setFontScale(2);
+        loggedInUserUsername.setColor(Color.GOLD);
+        loggedInUserUsername.setPosition(0, AtomicBomber.HEIGHT - 30);
+        loggedInUserAvatar = User.getLoggedInUser().getAvatar();
+        avatarSprite = new Sprite(loggedInUserAvatar);
+        avatarSprite.setSize(200, 200);
+        avatarSprite.setPosition(AtomicBomber.WIDTH - 200, AtomicBomber.HEIGHT - 200);
+
         // Create a table to layout the buttons
         Table table = new Table();
         table.setFillParent(true); // Make the table fill the whole stage
         table.defaults().width(300).height(120).spaceBottom(10); // Set default width, height and space between buttons
 
-        playButton = new TextButton("Play", skin);
-        playButton.setSize(300, 120);
+        startNewGameButton = new TextButton("Start new Game", skin);
+        startNewGameButton.setSize(300, 120);
 
+        continueGameButton = new TextButton("Continue Game", skin);
+        continueGameButton.setSize(300, 120);
 
         showLeaderBoard = new TextButton("Show LeaderBoard", skin);
         showLeaderBoard.setSize(450, 120);
@@ -63,7 +79,8 @@ public class MainMenuScreen implements Screen {
         exitButton.setSize(300, 120);
 
         // Add the buttons to the table
-        table.add(playButton);
+        table.add(startNewGameButton);
+        table.add(continueGameButton);
         table.row();
         table.add(showLeaderBoard);
         table.row();
@@ -75,6 +92,7 @@ public class MainMenuScreen implements Screen {
 
         // Add the table to the stage
         stage.addActor(table);
+        stage.addActor(loggedInUserUsername);
 
 
 
@@ -100,17 +118,31 @@ public class MainMenuScreen implements Screen {
         profileButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                if(User.getLoggedInUser().getUsername().equals("_Geust_")) {
+                    errorDialog = new Dialog("Error", skin);
+                    errorDialog.text("You are not logged in");
+                    errorDialog.button("OK");
+                    errorDialog.show(stage);
+                    return;
+                }
                 dispose();
                 ScreenManager.getInstance().removeScreen("MainMenuScreen");
                 ScreenManager.getInstance().setScreen("ProfileMenuScreen");
             }
         });
-        playButton.addListener(new ClickListener() {
+        startNewGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 dispose();
+                Game.setPlayingGame(new Game(User.getLoggedInUser()));
                 ScreenManager.getInstance().removeScreen("MainMenuScreen");
                 ScreenManager.getInstance().setScreen("MainGameScreen");
+            }
+        });
+        continueGameButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                handleContinueGame();
             }
         });
         exitButton.addListener(new ClickListener() {
@@ -123,6 +155,20 @@ public class MainMenuScreen implements Screen {
         });
     }
 
+    private void handleContinueGame() {
+        if(Game.getPlayingGame() != null) {
+            User.getLoggedInUser().removeLastGameData();
+            dispose();
+            ScreenManager.getInstance().removeScreen("MainMenuScreen");
+            ScreenManager.getInstance().setScreen("MainGameScreen");
+        } else {
+            errorDialog = new Dialog("Error", skin);
+            errorDialog.text("No game to continue");
+            errorDialog.button("OK");
+            errorDialog.show(stage);
+        }
+    }
+
     @Override
     public void render(float delta) {
 
@@ -130,6 +176,7 @@ public class MainMenuScreen implements Screen {
         Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
         AtomicBomber.singleton.getBatch().begin();
         background.draw(AtomicBomber.singleton.getBatch());
+        avatarSprite.draw(AtomicBomber.singleton.getBatch());
         AtomicBomber.singleton.getBatch().end();
         stage.act(delta);
         stage.draw();

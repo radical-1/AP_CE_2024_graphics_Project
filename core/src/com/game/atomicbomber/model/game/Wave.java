@@ -70,6 +70,10 @@ public class Wave {
     public boolean getSpawnMig() {
         return spawnMig;
     }
+    public void spawnTank() {
+        float x = random.nextFloat() * AtomicBomber.WIDTH;
+        Game.getPlayingGame().addEnemy(new Tank(x, 60, difficulty.getTankSpeed(), difficulty.getTankAttackRange()));
+    }
 
 
 }

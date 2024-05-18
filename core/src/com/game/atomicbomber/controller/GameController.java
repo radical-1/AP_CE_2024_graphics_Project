@@ -10,10 +10,6 @@ public class GameController {
     public static void increaseShootBullets() {
         Game.getPlayingGame().increaseShootBullets();
     }
-    public static void updateAccuracy() {
-        float newAccuracy = (float) Game.getPlayingGame().getShootEnemies() / Game.getPlayingGame().getShootBullets();
-        Game.getPlayingGame().setAccuracy(newAccuracy);
-    }
     public static void shoot() {
         if(Game.getPlayingGame().getNumberOfBombs() >= 1 && Game.getPlayingGame().timeSinceLastBomb >= 1) {
             Game.getPlayingGame().addBomb();
@@ -50,5 +46,21 @@ public class GameController {
             Game.getPlayingGame().resetFreezeBarValue();
         }
 
+    }
+
+    public static void showCopletionDialog() {
+
+    }
+
+    public static void goToNextWave() {
+        Game.getPlayingGame().clearEnemies();
+    }
+
+    public static void AddOneRadioactiveBomb() {
+        Game.getPlayingGame().increaseAtomicBomb();
+    }
+
+    public static void AddOneClusterBomb() {
+        Game.getPlayingGame().increaseCluster();
     }
 }

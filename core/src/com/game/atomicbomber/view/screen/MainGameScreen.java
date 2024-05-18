@@ -9,11 +9,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Timer;
 import com.game.atomicbomber.AtomicBomber;
 import com.game.atomicbomber.controller.GameController;
 import com.game.atomicbomber.controller.ScreenManager;
@@ -62,7 +62,7 @@ public class MainGameScreen implements Screen {
     private Label difficultyLabel;
     private Label healthLabel;
 
-    public Game game;
+
 
     public MainGameScreen(AtomicBomber game) {
 
@@ -73,7 +73,6 @@ public class MainGameScreen implements Screen {
         freezeBar.setBounds(AtomicBomber.WIDTH - 300, AtomicBomber.HEIGHT - 100, 200, 50);
 
         isPaused = false;
-        this.game = new Game(User.getLoggedInUser());
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
@@ -121,8 +120,6 @@ public class MainGameScreen implements Screen {
     }
 
     public void handleInfo() {
-
-
         bombIcon = new Sprite(bombIconTexture);
         bombIcon.setSize(40, 40); // Replace with the desired size
         bombIcon.setPosition(60, AtomicBomber.HEIGHT - 200); // Replace with the desired position
@@ -192,7 +189,12 @@ public class MainGameScreen implements Screen {
             stage.draw();
             return;
         }
-
+        if(Game.getPlayingGame().isNewWave()) {
+            stage.act(delta);
+            stage.draw();
+            showWaveCompletion();
+            return;
+        }
         //Shooting part
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             GameController.shoot();
@@ -206,6 +208,18 @@ public class MainGameScreen implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.TAB)){
             GameController.freeze();
         }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
+            GameController.goToNextWave();
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.G)){
+            GameController.AddOneRadioactiveBomb();
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.CONTROL_LEFT)){
+            GameController.AddOneClusterBomb();
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.T)){
+            Game.getPlayingGame().spawnOneTankInRandomPlace();
+        }
 
         //Moving part
 
@@ -216,7 +230,7 @@ public class MainGameScreen implements Screen {
         AtomicBomber.singleton.getBatch().begin();
         background.draw(AtomicBomber.singleton.getBatch());
         ground.draw(AtomicBomber.singleton.getBatch());
-        if (game.isFroze()) {
+        if (Game.getPlayingGame().isFroze()) {
             freeze.draw(AtomicBomber.singleton.getBatch());
         }
         bombIcon.draw(AtomicBomber.singleton.getBatch());
@@ -225,9 +239,9 @@ public class MainGameScreen implements Screen {
         killIcon.draw(AtomicBomber.singleton.getBatch());
         waveIcon.draw(AtomicBomber.singleton.getBatch());
         healthIcon.draw(AtomicBomber.singleton.getBatch());
-        game.getShip().render(delta);
-        game.update(delta);
-        freezeBar.setValue(game.getFreezeBarValue());
+        Game.getPlayingGame().getShip().render(delta);
+        Game.getPlayingGame().update(delta);
+        freezeBar.setValue(Game.getPlayingGame().getFreezeBarValue());
         AtomicBomber.singleton.getBatch().end();
         updateButtons();
 
@@ -288,6 +302,9 @@ public class MainGameScreen implements Screen {
         endGameButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                GameData.saveGameData(Game.getPlayingGame());
+                User.getLoggedInUser().updateInfo();
+                Game.setPlayingGame(null);
                 dispose();
                 ScreenManager.getInstance().removeScreen("MainGameScreen");
                 ScreenManager.getInstance().setScreen("MainMenuScreen");
@@ -355,8 +372,8 @@ public class MainGameScreen implements Screen {
         saveAndExitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                //TODO : handle saving game
                 GameData.saveGameData(Game.getPlayingGame());
+                User.getLoggedInUser().updateInfo();
                 dispose();
                 ScreenManager.getInstance().removeScreen("MainGameScreen");
                 ScreenManager.getInstance().setScreen("MainMenuScreen");
@@ -367,6 +384,7 @@ public class MainGameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 dispose();
+                Game.setPlayingGame(null);
                 ScreenManager.getInstance().removeScreen("MainGameScreen");
                 ScreenManager.getInstance().setScreen("MainMenuScreen");
             }
@@ -513,5 +531,80 @@ public class MainGameScreen implements Screen {
 
         // Add the guide window to the stage
         stage.addActor(guideWindow);
+    }
+    private void showWaveCompletion() {
+        // Pause the game
+        isPaused = true;
+
+        // Create the wave completion window
+        Window waveCompletionWindow = new Window("Wave Completed", AtomicBomber.singleton.skin);
+        waveCompletionWindow.setResizable(false);
+        waveCompletionWindow.setSize(600, 600);
+        waveCompletionWindow.setPosition(AtomicBomber.WIDTH / 2 - waveCompletionWindow.getWidth() / 2, AtomicBomber.HEIGHT / 2 - waveCompletionWindow.getHeight() / 2); // Center the window
+
+        // Create a label for the wave number and accuracy
+        Label waveNumberLabel = new Label("Wave: " + (Game.getPlayingGame().getWaveNumber() - 1), AtomicBomber.singleton.skin);
+        Label accuracyLabel = new Label("Accuracy: " + String.format("%.2f", Game.getPlayingGame().getAccuracy() * 100) + "%", AtomicBomber.singleton.skin);
+
+        // Add the labels to the window
+        waveCompletionWindow.add(waveNumberLabel);
+        waveCompletionWindow.row();
+        waveCompletionWindow.add(accuracyLabel);
+        waveCompletionWindow.row();
+
+        // Create a close button
+        TextButton closeButton = new TextButton("Close", AtomicBomber.singleton.skin);
+        closeButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(Game.getPlayingGame() == null) {
+                    return;
+                }
+                if(Game.getPlayingGame().getWaveNumber() == 4) {
+                    GameData.saveGameData(Game.getPlayingGame());
+                    User.getLoggedInUser().updateInfo();
+                    Game.setPlayingGame(null);
+                    dispose();
+                    ScreenManager.getInstance().removeScreen("MainGameScreen");
+                    ScreenManager.getInstance().setScreen("MainMenuScreen");
+                    return;
+                }
+                // Hide the wave completion window
+                Game.getPlayingGame().newWaveDone();
+                waveCompletionWindow.remove();
+
+                // Resume the game
+                isPaused = false;
+            }
+        });
+
+        // Add the close button to the window
+        waveCompletionWindow.add(closeButton);
+
+        // Add the wave completion window to the stage
+        stage.addActor(waveCompletionWindow);
+
+        // Hide the window after 4 seconds
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                if(Game.getPlayingGame() == null) {
+                    return;
+                }
+                if(Game.getPlayingGame().getWaveNumber() == 4) {
+                    GameData.saveGameData(Game.getPlayingGame());
+                    User.getLoggedInUser().updateInfo();
+                    Game.setPlayingGame(null);
+                    dispose();
+                    ScreenManager.getInstance().removeScreen("MainGameScreen");
+                    ScreenManager.getInstance().setScreen("MainMenuScreen");
+                    return;
+                }
+                waveCompletionWindow.remove();
+                Game.getPlayingGame().newWaveDone();
+                // Resume the game
+                isPaused = false;
+            }
+        }, 4);
     }
 }

@@ -13,12 +13,12 @@ import java.util.ArrayList;
 public class Game {
     private static Game playingGame;
     private int kills;
-    private float accuracy;
+
     private User player;
     private Wave currentWave;
     private int waveNumber;
     private int shootBullets;
-    private int shootEnemies;
+    private int missedBullets;
     public float timeSinceLastBomb;
     public float timeSinceLastCluster;
     private Difficulty difficulty;
@@ -29,6 +29,9 @@ public class Game {
     private float freezeTimer;
     private float freezeBarValue = 0.0f;
     private boolean gameOver;
+    private boolean gameFinished;
+    private boolean migWarning;
+    private boolean isNewWave;
     private float migSpawnerTimer;
     //enemy objects
     private ArrayList<Enemy> enemies;
@@ -44,9 +47,9 @@ public class Game {
     public Game(User player) {
         kills = 0;
         shootBullets = 0;
-        shootEnemies = 0;
+        missedBullets = 0;
         this.difficulty = player.getGameInfo().getDifficulty();
-        accuracy = 0;
+
         timeSinceLastBomb = 0;
         timeSinceLastCluster = 0;
         this.player = player;
@@ -62,6 +65,7 @@ public class Game {
         numberOfRadioActiveBomb = 0;
         numberOfBombs = 10;
         gameOver = false;
+        gameFinished = false;
         isFroze = false;
         freezeTimer = 0;
         startWave();
@@ -79,19 +83,17 @@ public class Game {
                 currentWave = new Wave(7, 4, 3, 3, 10, true, difficulty);
                 break;
             default:
-                //TODO : Exit game
+                gameFinished = true;
                 break;
         }
 
     }
 
     public float getAccuracy() {
-        return accuracy;
+        return (float) (shootBullets - missedBullets) / shootBullets;
     }
 
-    public void setAccuracy(float accuracy) {
-        this.accuracy = accuracy;
-    }
+
 
     public int getKills() {
         return kills;
@@ -109,10 +111,6 @@ public class Game {
         kills += num;
     }
 
-    private void updateAccuracy(float accuracy) {
-        this.accuracy = accuracy;
-    }
-
     public static Game getPlayingGame() {
         return playingGame;
     }
@@ -124,6 +122,7 @@ public class Game {
     public void addEnemy(Enemy enemy) {
         enemies.add(enemy);
     }
+
 
     public void update(float delta) {
         if(isFroze) {
@@ -142,14 +141,14 @@ public class Game {
                 migSpawnerTimer = 0;
             }
             if (migSpawnerTimer >= 2 * (difficulty.getTimeBetweenMigPassing() / 3)) {
-                //TODO : show mig warning
+                migWarning = true;
             }
         }
         handleObjectsUpdate(delta);
         if (isWaveDone()) {
+            isNewWave = true;
             waveNumber++;
             startWave();
-            //TODO : show wave win message
         }
     }
 
@@ -163,6 +162,8 @@ public class Game {
                 bomb.explode();
             }
             if (bomb.isExploded()) {
+                if(bomb.isOutOfScreen())
+                    increaseMissedBullets();
                 bombs.remove(bomb);
             }
         }
@@ -196,13 +197,8 @@ public class Game {
         }
         for (EnemyBullet bullet : new ArrayList<>(enemyBullets)) {
             bullet.update(delta);
-        }
-        for (EnemyBullet bullet : new ArrayList<>(enemyBullets)) { // Replace with actual list of enemy bullets
-            if (bullet.isCollidingWithShip(ship)) { // Replace 'ship' with actual ship instance
-                // Handle collision
-                handleEnemyBulletCollision(bullet);
-            }
             if (bullet.isExploded()) {
+
                 enemyBullets.remove(bullet);
             }
         }
@@ -244,11 +240,6 @@ public class Game {
         }
     }
 
-    private void handleEnemyBulletCollision(EnemyBullet bullet) {
-        bullet.explode();
-        ship.reduceHealth();
-    }
-
     public boolean isWaveDone() {
         for(Enemy enemy : enemies) {
             if (!(enemy instanceof Mig) && !(enemy instanceof Tree)) {
@@ -268,19 +259,20 @@ public class Game {
     }
 
     public void increaseShootBullets() {
+        System.out.println("Shoot bullets: " + shootBullets);
         shootBullets++;
     }
 
-    public int getShootEnemies() {
-        return shootEnemies;
-    }
 
-    public void increaseShootEnemies() {
-        shootEnemies++;
+
+    public void increaseMissedBullets() {
+        System.out.println("Shoot enemies: " + missedBullets);
+        missedBullets++;
     }
 
     public void addBomb() {
         bombs.add(new Bomb(ship.x, ship.y, ship.getX_Speed() / 10, ship.getY_Speed() / 10));
+        increaseShootBullets();
     }
 
     public void addRadioActiveBomb() {
@@ -289,6 +281,7 @@ public class Game {
 
     public void addBomb(Bomb bomb) {
         bombs.add(bomb);
+        increaseShootBullets();
     }
 
     public void increaseCluster() {
@@ -373,6 +366,25 @@ public class Game {
     }
     public void resetFreezeBarValue() {
         freezeBarValue = 0.0f;
+    }
+    public void newWaveDone() {
+        isNewWave = false;
+    }
+    public boolean isNewWave() {
+        return isNewWave;
+    }
+    public boolean WinOrLost() {
+        return gameFinished;
+        //true means that user won the game
+        //false means that user lost the game
+    }
+
+    public void clearEnemies() {
+        enemies.clear();
+    }
+
+    public void spawnOneTankInRandomPlace() {
+        currentWave.spawnTank();
     }
 }
 

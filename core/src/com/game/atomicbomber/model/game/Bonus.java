@@ -39,6 +39,10 @@ public class Bonus {
         else return null;
     }
     public void update(float delta) {
+        if(Game.getPlayingGame().isFroze()) {
+            render();
+            return;
+        }
         y += Y_SPEED * delta;
         x += speedX * delta;
         render();

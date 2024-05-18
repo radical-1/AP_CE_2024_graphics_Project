@@ -63,7 +63,7 @@ public class Collision {
         this.getExplosionAnimation().setPlayMode(Animation.PlayMode.NORMAL);
         if (this.getExplosionAnimation().isAnimationFinished(bomb.time)) {
             bomb.setExploded();
-            //bomb.stopSoundEffect();
+            bomb.stopSoundEffect();
         }
     }
 
@@ -82,16 +82,19 @@ public class Collision {
     }
 
     public void createCollision(EnemyBullet bullet) {
-        bullet.getBulletSprite().setRegion(this.getExplosionAnimation().getKeyFrame(bullet.time));
+
+        bullet.getBulletSprite().setRegion(getExplosionAnimation().getKeyFrame(bullet.time));
         bullet.getBulletSprite().setSize(90, 90);
+        this.getExplosionAnimation().setPlayMode(Animation.PlayMode.NORMAL);
         if (!this.getExplosionAnimation().isAnimationFinished(bullet.time)) {
+
             bullet.time += Gdx.graphics.getDeltaTime();
         } else {
+            bullet.setExploded();
+            System.out.println("Bullet time: " + bullet.time);
             bullet.time = 0;
         }
-        this.getExplosionAnimation().setPlayMode(Animation.PlayMode.NORMAL);
         if (this.getExplosionAnimation().isAnimationFinished(bullet.time)) {
-            bullet.setExploded();
 
         }
     }

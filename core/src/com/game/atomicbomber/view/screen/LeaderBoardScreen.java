@@ -6,10 +6,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.game.atomicbomber.AtomicBomber;
 import com.game.atomicbomber.controller.LeaderBoardController;
 import com.game.atomicbomber.controller.ScreenManager;
@@ -22,21 +25,21 @@ public class LeaderBoardScreen implements Screen {
     private TextButton backButton;
     private SelectBox<String> sortSelectBox;
 
-    private AtomicBomber game;
+
     private ArrayList<User> allUsers;
     private Stage stage;
     private Table leaderboardTable;
 
     public LeaderBoardScreen(AtomicBomber game) {
-        this.game = game;
         allUsers = LeaderBoardController.sortUsersByKills(User.getAllUsers());
-        Texture backgroundTexture = new Texture("avatar_menu_background.jpg");
+        Texture backgroundTexture = new Texture("leaderboard_background.png");
         background = new Sprite(backgroundTexture);
         background.setSize(AtomicBomber.WIDTH, AtomicBomber.HEIGHT + 40);
 
         sortSelectBox = new SelectBox<>(game.skin);
         sortSelectBox.setItems("Sort by Kills", "Sort by Accuracy", "Sort by Difficulty");
-        sortSelectBox.setPosition(0, 100);
+        sortSelectBox.setSize(300, 100);
+        sortSelectBox.setPosition(AtomicBomber.WIDTH - sortSelectBox.getWidth(), 0);
 
         backButton = new TextButton("Back", game.skin);
         backButton.setSize(200, 60);
@@ -46,13 +49,17 @@ public class LeaderBoardScreen implements Screen {
         leaderboardTable = new Table();
         leaderboardTable.top();
         leaderboardTable.setFillParent(true);
+        leaderboardTable.setPosition(0, -100);
+
 
         updateLeaderBoard();
         // Create a scroll pane for the table
         ScrollPane scrollPane = new ScrollPane(leaderboardTable, game.skin);
         scrollPane.setFillParent(true);
         scrollPane.setScrollingDisabled(true, false);
-        scrollPane.setPosition(0, AtomicBomber.HEIGHT - 100);
+
+        // Set the position of the leaderboard
+        scrollPane.setPosition(100, 500);  // replace newX and newY with the desired coordinates
 
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
@@ -75,9 +82,9 @@ public class LeaderBoardScreen implements Screen {
                     case "Sort by Kills" ->
                             allUsers = LeaderBoardController.sortUsersByKills(User.getAllUsers());
                     case "Sort by Accuracy" ->
-                            allUsers = LeaderBoardController.sortUserByDifficulty(User.getAllUsers());
-                    case "Sort by Difficulty" ->
                             allUsers = LeaderBoardController.sortByAccuracy(User.getAllUsers());
+                    case "Sort by Difficulty" ->
+                            allUsers = LeaderBoardController.sortUserByDifficulty(User.getAllUsers());
                 }
                 updateLeaderBoard();
             }
@@ -94,54 +101,71 @@ public class LeaderBoardScreen implements Screen {
 
     public void updateLeaderBoard() {
         leaderboardTable.clear();
+        // Create a new font
+        BitmapFont font = new BitmapFont();
+        font.getData().setScale(2);  // Set the desired scale
+
+        // Create a new label style with the font
+        Label.LabelStyle style = new Label.LabelStyle(font, Color.BLACK);
+        Label.LabelStyle style1 = new Label.LabelStyle(font, Color.GOLD);
+        Label.LabelStyle style2 = new Label.LabelStyle(font, Color.GRAY);
+        Label.LabelStyle style3 = new Label.LabelStyle(font, Color.SALMON);
+
         // Add a header row to the table
-        leaderboardTable.add(new Label("Rank", game.skin)).expandX();
-        leaderboardTable.add(new Label("Username", game.skin)).expandX();
-        leaderboardTable.add(new Label("Score", game.skin)).expandX();
+        leaderboardTable.add(new Label("Rank", style)).expandX();
+        leaderboardTable.add(new Label("Username", style)).expandX();
+        leaderboardTable.add(new Label("Kills", style)).expandX();
+        leaderboardTable.add(new Label("difficulty", style)).expandX();
+        leaderboardTable.add(new Label("Accuracy", style)).expandX();
+        leaderboardTable.add(new Label("Last Wave", style)).expandX();
         leaderboardTable.row();
 
-        // Create a red font for the rank 1 user
-        BitmapFont redFont = new BitmapFont();
-        redFont.setColor(Color.RED);
-        Label.LabelStyle redStyle = new Label.LabelStyle(redFont, Color.RED);
-        BitmapFont greenFont = new BitmapFont();
-        greenFont.setColor(Color.GREEN);
-        Label.LabelStyle greenStyle = new Label.LabelStyle(greenFont, Color.GREEN);
-
         // Add a row to the table for each user
-        for (int i = 0; i < allUsers.size(); i++) {
+        for (int i = 0; i < Math.min(10, allUsers.size()); i++) {
             User user = allUsers.get(i);
-            if (i < 3) { // Rank 1 to 3 users are red
-                Label rankLabel = new Label(String.valueOf(i + 1), redStyle);
-                rankLabel.setFontScale(3);
-                Label usernameLabel = new Label(user.getUsername(), redStyle);
-                usernameLabel.setFontScale(3);
-                Label scoreLabel = new Label(String.valueOf(user.getScore()), redStyle);
-                scoreLabel.setFontScale(3);
-                leaderboardTable.add(rankLabel);
-                leaderboardTable.add(usernameLabel);
-                leaderboardTable.add(scoreLabel);
-            } else { // Rank 4 and below users are green
-                Label rankLabel = new Label(String.valueOf(i + 1), greenStyle);
-                rankLabel.setFontScale(3);
-                Label usernameLabel = new Label(user.getUsername(), greenStyle);
-                usernameLabel.setFontScale(3);
-                Label scoreLabel = new Label(String.valueOf(user.getScore()), greenStyle);
-                scoreLabel.setFontScale(3);
-                leaderboardTable.add(rankLabel);
-                leaderboardTable.add(usernameLabel);
-                leaderboardTable.add(scoreLabel);
-            }
+            if (i == 0) {
+                leaderboardTable.add(new Label(String.valueOf(i + 1), style1));
+                leaderboardTable.add(new Label(user.getUsername(), style1));
+                leaderboardTable.add(new Label(String.valueOf(user.getKills()), style1));
+                leaderboardTable.add(new Label(String.valueOf(user.getDifficulty()), style1));
+                leaderboardTable.add(new Label(user.getAccuracy() + "%", style1));
+                leaderboardTable.add(new Label(String.valueOf(user.getLastWave()), style1));
+                leaderboardTable.row();
+            } else if (i == 1) {
+                leaderboardTable.add(new Label(String.valueOf(i + 1), style2));
+                leaderboardTable.add(new Label(user.getUsername(), style2));
+                leaderboardTable.add(new Label(String.valueOf(user.getKills()), style2));
+                leaderboardTable.add(new Label(String.valueOf(user.getDifficulty()), style2));
+                leaderboardTable.add(new Label(user.getAccuracy() + "%", style2));
+                leaderboardTable.add(new Label(String.valueOf(user.getLastWave()), style2));
+                leaderboardTable.row();
+            } else if (i == 2) {
+            leaderboardTable.add(new Label(String.valueOf(i + 1), style3));
+            leaderboardTable.add(new Label(user.getUsername(), style3));
+            leaderboardTable.add(new Label(String.valueOf(user.getKills()), style3));
+                leaderboardTable.add(new Label(String.valueOf(user.getDifficulty()), style3));
+            leaderboardTable.add(new Label(user.getAccuracy() + "%", style3));
+            leaderboardTable.add(new Label(String.valueOf(user.getLastWave()), style3));
             leaderboardTable.row();
+            } else {
+                leaderboardTable.add(new Label(String.valueOf(i + 1), style));
+                leaderboardTable.add(new Label(user.getUsername(), style));
+                leaderboardTable.add(new Label(String.valueOf(user.getKills()), style));
+                leaderboardTable.add(new Label(String.valueOf(user.getDifficulty()), style));
+                leaderboardTable.add(new Label(user.getAccuracy() + "%", style));
+                leaderboardTable.add(new Label(String.valueOf(user.getLastWave()), style));
+                leaderboardTable.row();
+            }
         }
     }
+
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.25f, 0.5f, 0.75f, 1);
         Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
-        game.getBatch().begin();
-        background.draw(game.getBatch());
-        game.getBatch().end();
+        AtomicBomber.singleton.getBatch().begin();
+        background.draw(AtomicBomber.singleton.getBatch());
+        AtomicBomber.singleton.getBatch().end();
         stage.act(delta);
         stage.draw();
     }

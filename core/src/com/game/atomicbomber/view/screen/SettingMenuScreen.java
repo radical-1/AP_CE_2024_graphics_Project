@@ -71,6 +71,7 @@ public class SettingMenuScreen implements Screen {
         grayscaleCheckBox = new CheckBox("Grayscale Mode", game.skin);
         grayscaleCheckBox.setChecked(User.getLoggedInUser().getGameInfo().isGrayScale());
 
+
         backButton = new TextButton("Back", game.skin);
         backButton.setSize(200, 60);
         // Add the slider to the stage

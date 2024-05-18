@@ -19,7 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class AvatarMenuScreen implements Screen {
-    private TextButton[] avatarButtons = new TextButton[5];
+    private TextButton[] avatarButtons = new TextButton[9];
 
     private Sprite background;
     private TextButton chooseFileButton;
@@ -35,7 +35,7 @@ public class AvatarMenuScreen implements Screen {
     AtomicBomber game;
 
     public AvatarMenuScreen(AtomicBomber game) {
-        Texture backgroundTexture = new Texture("avatar_menu_background.jpg");
+        Texture backgroundTexture = new Texture("avatar_menu_background.jpeg");
         this.background = new Sprite(backgroundTexture);
         background.setSize(AtomicBomber.WIDTH, AtomicBomber.HEIGHT);
         this.game = game;
@@ -58,6 +58,7 @@ public class AvatarMenuScreen implements Screen {
         backButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                User.getLoggedInUser().updateInfo();
                 dispose();
                 ScreenManager.getInstance().removeScreen("AvatarMenuScreen");
                 ScreenManager.getInstance().setScreen("ProfileMenuScreen");
@@ -91,9 +92,12 @@ public class AvatarMenuScreen implements Screen {
             if(i < 3) {
                 x = i * (avatarButtons[i].getWidth() + 30);
                 y = 10;
-            } else {
+            } else if(i < 6){
                 x = (i - 3) * (avatarButtons[i].getWidth() + 30);
                 y = 10 + avatarButtons[i].getHeight() + 10;
+            } else {
+                x = (i - 6) * (avatarButtons[i].getWidth() + 30);
+                y = 10 + 2 * (avatarButtons[i].getHeight() + 10);
             }
             avatarButtons[i].setPosition(x, y);
             avatarButtons[i].addListener(new ClickListener() {

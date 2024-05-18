@@ -7,9 +7,9 @@ import com.game.atomicbomber.AtomicBomber;
 import com.game.atomicbomber.model.game.Game;
 
 public class Truck extends Enemy {
-    private static final float TRUCK_WIDTH = 130;
-    private static final float TRUCK_HEIGHT = 75;
-    private static final float TRUCK_SPEED = 30;
+    private static final float TRUCK_WIDTH = 150;
+    private static final float TRUCK_HEIGHT = 100;
+    private static final float TRUCK_SPEED = 40;
     private static final int TRUCK_HITPOINT = 10;
     private static final Texture truckTexture = new Texture("truck.png");
 

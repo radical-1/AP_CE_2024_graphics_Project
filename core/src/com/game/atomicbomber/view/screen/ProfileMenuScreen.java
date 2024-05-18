@@ -50,7 +50,7 @@ public class ProfileMenuScreen extends Menu implements Screen {
 
 
     public ProfileMenuScreen(AtomicBomber game) {
-        background = new Texture("avatar_menu_background.jpg");
+        background = new Texture("profile_menu_background.png");
 
         batch = game.getBatch();
         font = new BitmapFont();
