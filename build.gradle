@@ -1,6 +1,4 @@
 buildscript {
-    
-
     repositories {
         mavenLocal()
         mavenCentral()
@@ -39,31 +37,49 @@ allprojects {
 }
 
 project(":desktop") {
-    apply plugin: "java-library"
+    apply plugin: "java"
 
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
+    }
 
     dependencies {
         implementation project(":core")
-        api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        api "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
-        api "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion"
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion"
         implementation "games.spooky.gdx:gdx-nativefilechooser-desktop-lwjgl:2.1.0"
-
-
     }
 }
 
 project(":core") {
-    apply plugin: "java-library"
+    apply plugin: "java"
 
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(16))
+        }
+    }
 
     dependencies {
-        api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
-        api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
-        api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+        implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
+        implementation "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
+        implementation "com.badlogicgames.gdx:gdx-ai:$aiVersion"
         implementation "games.spooky.gdx:gdx-nativefilechooser:2.1.0"
-
     }
+}
+tasks.register('dist', Jar) {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
 }

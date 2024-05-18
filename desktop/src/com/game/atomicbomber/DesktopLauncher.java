@@ -12,6 +12,7 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
 		config.useVsync(true);
+		config.setWindowIcon("icon.png");
 		config.setTitle("Atomic Bomber");
 		config.setWindowedMode(AtomicBomber.WIDTH, AtomicBomber.HEIGHT);
 		config.setResizable(false);

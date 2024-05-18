@@ -329,12 +329,15 @@ public class MainGameScreen implements Screen {
         // Create buttons for each action
 
         TextButton changeMusicButton = new TextButton("Change Music", AtomicBomber.singleton.skin);
+        TextButton stopMusicButton = new TextButton("Stop Music", AtomicBomber.singleton.skin);
         TextButton showGuideButton = new TextButton("Show Guide", AtomicBomber.singleton.skin);
         TextButton resumeButton = new TextButton("Resume", AtomicBomber.singleton.skin);
         TextButton saveAndExitButton = new TextButton("Save and Exit", AtomicBomber.singleton.skin);
         TextButton exitWithoutSavingButton = new TextButton("Exit Without Saving", AtomicBomber.singleton.skin);
         // Add buttons to the window
         pauseWindow.add(changeMusicButton);
+        pauseWindow.row();
+        pauseWindow.add(stopMusicButton);
         pauseWindow.row();
         pauseWindow.add(showGuideButton);
         pauseWindow.row();
@@ -351,7 +354,16 @@ public class MainGameScreen implements Screen {
                 changeMusic();
             }
         });
+        stopMusicButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if(User.getLoggedInUser().getGameInfo().isMute())
+                    User.getLoggedInUser().getGameInfo().unMute();
+                else
+                    User.getLoggedInUser().getGameInfo().mute();
 
+            }
+        });
         // Show guide button
         showGuideButton.addListener(new ClickListener() {
             @Override
